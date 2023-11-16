@@ -1,9 +1,12 @@
 import numpy as np
 
+from graphs import Edge, Vertex, WeightedVertex
+
+
 class Die:
-    cycles: []
-    edges: []
-    x_weights: []
+    cycles: list[list[WeightedVertex]]
+    edges: list[Edge]
+    vertex_weights: [WeightedVertex]
     sides: int
 
     def __init__(self, num_faces: int, adjacent_faces: [tuple[int, int]],
@@ -24,23 +27,34 @@ class Die:
             the die. For unfair dice (D10, D30, etc.) this may differ in the die (3 and 5, 3 and 5), which is why this
             is a list.
         """
-        self.vertex_weights = np.zeros((1, num_faces), int)
+        self.vertex_weights = np.array([WeightedVertex(i, 0) for i in range(num_faces)])
         self.edges = adjacent_faces
 
         self.cycles = []
         for cyc_len in faces_on_vertices:
-            self.cycles.append(self.__find_simple_cycles__(cyc_len))
+            self.cycles.extend(self.__find_simple_cycles__(cyc_len))
 
-    def __find_simple_cycles__(self, cycle_len) -> list[list[int]]:
+    def __find_simple_cycles__(self, cycle_len) -> list[list[WeightedVertex]]:
         """
         Finds all unique simple cycles of a specific length in an edge_list.
         :param edges: The undirected edge list of the graph
         :param cycle_len: The number of unique vertices in the cycles. The first vertex counts as the first and last.
         :return: A list of unique simple cycles in the graph. The closing edge goes from the last to the first vertex
         """
-        def cycle_helper(edge_dict, curr_path, cycle_len):
+        def cycle_helper(edge_dict: dict[int: list[Edge]], curr_path: list[WeightedVertex], cycle_len: int, cycles: list[WeightedVertex]):
             if len(curr_path) == cycle_len:
-                if (curr_path[0], curr_path[-1]) in edge_dict
+                if Edge(curr_path[0], curr_path[-1]) in edge_dict[curr_path[-1]]:
+                    cycles.append(curr_path)
+            else:
+                start_vert = curr_path[-1]
+                edges_to_try = [e for e in edge_dict[start_vert] if e.follow(start_vert) not in curr_path]
+                for edge in edges_to_try:
+                    new_path = curr_path.copy()
+                    new_path.append(edge.follow(curr_path[-1]))
+                    cycle_helper(edge_dict, new_path, cycle_len, cycles)
+
+
+
 
 
     def __get_vertex_weights__(self) -> list[tuple[list[int], float]]:

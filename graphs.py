@@ -2,6 +2,10 @@ class Vertex:
     def __init__(self, name):
         self.name = self.name
 
+class WeightedVertex(Vertex):
+    def __init__(self, name, weight):
+        super().__init__(name)
+        self.weight = weight
 
 class Edge:
     def __init__(self, src_vert: Vertex, dst_vert: Vertex, directed: bool=False):
