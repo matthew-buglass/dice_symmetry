@@ -1,8 +1,8 @@
-from typing import List, Tuple
+from itertools import permutations
 
 import numpy as np
 
-from graphs import Edge, Vertex, WeightedVertex, UndirectedPath
+from graphs import Edge, WeightedVertex, UndirectedPath
 
 
 class Die:
@@ -112,6 +112,27 @@ class Die:
         for i, w in enumerate(weights):
             self.verts[i].weight = w
 
+    def __expand_half_weights__(self, half_weights):
+        """
+        Yields a full set of weights from the lower half generator of weights
+        :param half_weights: a collection of face values from 2 to half of the number of faces.
+            (ie for a d8, a permutation of [2, 3, 4])
+        :return: A full list of weights to apply to a die's faces, maintaining the same average face value between
+        opposite faces.
+        """
+        num_faces = len(self.verts)
+        full_weights = [0] * num_faces
+        for a, b in self.opp_faces.items():
+            if a.name == 0:
+                full_weights[a.name] = 1
+                full_weights[b.name] = num_faces
+            else:
+                small_face_weight = half_weights[a.name-1]
+                full_weights[a.name] = small_face_weight
+                full_weights[b.name] = num_faces - small_face_weight + 1
+
+        return full_weights
+
     def calc_optimum_face_weights_locked_opp_faces(self):
         """
         Finds the weight (face number) positioning that minimizes the standard deviation of die vertex weights, keeping
@@ -120,7 +141,25 @@ class Die:
         """
         # we are always going to assign 1 to face 0 to avoid rotating the same number configurations around
         # the die. This also locks it's opposing face to be the maximum face value of the die
-        # optimal_weights =
+        half_weight_perms = permutations(range(2, len(self.verts) // 2 + 1))
+
+        optimal_weights = [0] * len(self.verts)
+        optimal_weights_sd = 99999999999999
+
+        for hw in half_weight_perms:
+            weights = self.__expand_half_weights__(hw)
+            self.__assign_weights__(weights=weights)
+            sd = np.std(self.__get_vertex_weights__())
+            if sd < optimal_weights_sd:
+                optimal_weights = weights
+                optimal_weights_sd = sd
+
+        # apply and return the best weights
+        self.__assign_weights__(optimal_weights)
+        return optimal_weights_sd
+
+    def verts_to_string(self):
+        return str([str(v) for v in self.verts])
 
 
 if __name__ == '__main__':
@@ -131,6 +170,7 @@ if __name__ == '__main__':
         opposing_faces=[(1,3), (2,4)]
     )
 
-    print(d4.__get_opposing_face_weights__())
-    print(d4.__get_vertex_weights__())
-
+    sd = d4.calc_optimum_face_weights_locked_opp_faces()
+    print("#### D4 calculations ####")
+    print("Opt vert weight sd of a d4: {:.4f}".format(sd))
+    print(f"Opt face value placement of a d4: {d4.verts_to_string()}\n")
