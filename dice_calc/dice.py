@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 import numpy as np
 
 from graphs import Edge, Vertex, WeightedVertex, UndirectedPath
@@ -6,7 +8,7 @@ from graphs import Edge, Vertex, WeightedVertex, UndirectedPath
 class Die:
     cycles: list[list[WeightedVertex]]
     edges: list[Edge]
-    verts: [WeightedVertex]
+    verts: list[WeightedVertex]
     sides: int
 
     def __init__(self, num_faces: int, adjacent_faces: [tuple[int, int]],
@@ -27,8 +29,9 @@ class Die:
             the die. For unfair dice (D10, D30, etc.) this may differ in the die (3 and 5, 3 and 5), which is why this
             is a list.
         """
-        self.verts = np.array([WeightedVertex(i, 0) for i in range(num_faces)], dtype=WeightedVertex)
+        self.verts = [WeightedVertex(i, i+1) for i in range(num_faces)]
         self.edges = [Edge(self.verts[e[0]-1], self.verts[e[1]-1])for e in adjacent_faces]
+        self.opp_faces = {self.verts[p[0]-1]: self.verts[p[1]-1] for p in opposing_faces}
 
         self.cycles = []
         for cyc_len in num_faces_on_vertices:
@@ -77,19 +80,33 @@ class Die:
             cycle_helper(edge_dict, UndirectedPath([v]), cycle_len, cycles)
         return cycles
 
-    def __get_vertex_weights__(self) -> list[tuple[list[int], float]]:
+    def __get_vertex_weights__(self) -> list[tuple[list[WeightedVertex], float]]:
         """
         Calculates the weights of each of the die's vertices
         :return: a list of tuples of the faces around vertices and their floating point vertex weights
         """
         vert_weights = []
         for cycle in self.cycles:
-            weight = sum([self.verts[w] for w in cycle]) / len(cycle)
+            weight = sum([w.weight for w in cycle]) / len(cycle)
             vert_weights.append((cycle, weight))
         return vert_weights
 
     def __get_opposing_face_weights__(self):
-        pass
+        weights = []
+        for i, j in self.opp_faces.items():
+            weights.append((i.weight + j.weight) / 2)
+        return weights
+
+    def calc_optimum_face_weights_locked_opp_faces(self):
+        """
+        Finds the weight (face number) positioning that minimizes the standard deviation of die vertex weights, keeping
+        facial symmetry (average of opposing faces is identical) a requirement.
+        :return: a string representation of face ids and the weights attributed.
+        """
+        # we are always going to assign 1 to face 0 to avoid rotating the same number configurations around
+        # the die. This also locks it's opposing face to be the maximum face value of the die
+        self.verts[0].weight = 0
+
 
 
 
@@ -101,4 +118,7 @@ if __name__ == '__main__':
         num_faces_on_vertices=[3],
         opposing_faces=[(1,3), (2,4)]
     )
-    print('Hello World')
+
+    print(d4.__get_opposing_face_weights__())
+    print(d4.__get_vertex_weights__())
+

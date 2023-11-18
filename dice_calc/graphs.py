@@ -5,6 +5,10 @@ class Vertex:
     def __str__(self):
         return str(self.name)
 
+    def __eq__(self, other):
+        assert other.__class__.__name__ == self.__class__.__name__
+        return other.name == self.name
+
 class WeightedVertex(Vertex):
     def __init__(self, name, weight):
         super().__init__(name)
@@ -12,6 +16,11 @@ class WeightedVertex(Vertex):
 
     def __str__(self):
         return "{}|{}".format(self.name, self.weight)
+
+    def __key__(self):
+        return self.name, self.weight
+    def __hash__(self):
+        return hash(self.__key__())
 
 class Edge:
     def __init__(self, src_vert: Vertex, dst_vert: Vertex, directed: bool=False):
