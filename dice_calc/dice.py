@@ -2,7 +2,7 @@ from itertools import permutations
 
 import numpy as np
 
-from graphs import Edge, WeightedVertex, UndirectedPath
+from utils.graphs import Edge, WeightedVertex, UndirectedPath
 
 
 class Die:
