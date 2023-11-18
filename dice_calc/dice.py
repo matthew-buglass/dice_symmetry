@@ -2,6 +2,7 @@ from itertools import permutations
 
 import numpy as np
 
+from utils.decorators import timed
 from utils.graphs import Edge, WeightedVertex, UndirectedPath
 
 
@@ -133,6 +134,7 @@ class Die:
 
         return full_weights
 
+    @timed
     def calc_optimum_face_weights_locked_opp_faces(self):
         """
         Finds the weight (face number) positioning that minimizes the standard deviation of die vertex weights, keeping
@@ -158,8 +160,11 @@ class Die:
         self.__assign_weights__(optimal_weights)
         return optimal_weights_sd
 
-    def verts_to_string(self):
+    def faces_to_string(self):
         return str([str(v) for v in self.verts])
+
+    def vertices_to_string(self):
+        return "\n\t\t".join([str(c) for c in self.cycles])
 
 
 if __name__ == '__main__':
@@ -170,7 +175,22 @@ if __name__ == '__main__':
         opposing_faces=[(1,3), (2,4)]
     )
 
-    sd = d4.calc_optimum_face_weights_locked_opp_faces()
+    sd, t = d4.calc_optimum_face_weights_locked_opp_faces()
     print("#### D4 calculations ####")
-    print("Opt vert weight sd of a d4: {:.4f}".format(sd))
-    print(f"Opt face value placement of a d4: {d4.verts_to_string()}\n")
+    print("\tOpt vert weight sd of a d4: {:.4f}".format(sd))
+    print(f"\tOpt face value placement of a d4: {d4.faces_to_string()}")
+    print(f"\tFaces around the vertices of a d4: \n\t\t{d4.vertices_to_string()}")
+    print("\tCalculated in {:.4f} ms\n".format(t))
+
+    d6 = Die(
+        num_faces=6,
+        adjacent_faces=[(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 6), (3, 5), (3, 6), (4, 5), (5, 6)],
+        num_faces_on_vertices=[3],
+        opposing_faces=[(1, 6), (2, 5), (3, 4)]
+    )
+    sd, t = d6.calc_optimum_face_weights_locked_opp_faces()
+    print("#### D6 calculations ####")
+    print("\tOpt vert weight sd of a d4: {:.4f}".format(sd))
+    print(f"\tOpt face value placement of a d4: {d6.faces_to_string()}")
+    print(f"\tFaces around the vertices of a d6: \n\t\t{d6.vertices_to_string()}")
+    print("\tCalculated in {:.4f} ms\n".format(t))
