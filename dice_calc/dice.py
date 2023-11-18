@@ -80,22 +80,37 @@ class Die:
             cycle_helper(edge_dict, UndirectedPath([v]), cycle_len, cycles)
         return cycles
 
-    def __get_vertex_weights__(self) -> list[tuple[list[WeightedVertex], float]]:
+    def __get_vertex_weights__(self) -> list[float]:
         """
         Calculates the weights of each of the die's vertices
-        :return: a list of tuples of the faces around vertices and their floating point vertex weights
+        :return: a list of floats of average weights of the die's vertices
         """
         vert_weights = []
         for cycle in self.cycles:
             weight = sum([w.weight for w in cycle]) / len(cycle)
-            vert_weights.append((cycle, weight))
+            vert_weights.append(weight)
         return vert_weights
 
     def __get_opposing_face_weights__(self):
+        """
+        Calculates the average weight of each of the die's opposing faces
+        :return: a list floats of the average weight of the die's opposing sides
+        """
         weights = []
         for i, j in self.opp_faces.items():
             weights.append((i.weight + j.weight) / 2)
         return weights
+
+    def __assign_weights__(self, weights: list[float]):
+        """
+        Assigns the provided weights to the vertices in order. There must be the same number of weights as there are
+        die faces
+        :param weights: the weights to assign to faces
+        :return: None
+        """
+        assert len(weights) == len(self.verts)
+        for i, w in enumerate(weights):
+            self.verts[i].weight = w
 
     def calc_optimum_face_weights_locked_opp_faces(self):
         """
@@ -105,10 +120,7 @@ class Die:
         """
         # we are always going to assign 1 to face 0 to avoid rotating the same number configurations around
         # the die. This also locks it's opposing face to be the maximum face value of the die
-        self.verts[0].weight = 0
-
-
-
+        # optimal_weights =
 
 
 if __name__ == '__main__':
