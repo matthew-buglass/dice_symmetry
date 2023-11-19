@@ -1,6 +1,8 @@
 import unittest
 
 from dice import Die
+from utils.graphs import UndirectedPath
+
 
 class DieTestCaseMixin:
     opposing_faces = None
@@ -47,14 +49,20 @@ class D4TestCase(unittest.TestCase, DieTestCaseMixin):
 
     def test_cycle_finding(self):
         # Setup
-        expected_cycles = []
+        verts = self.die.verts
+        expected_cycles = [
+            UndirectedPath([verts[0], verts[1], verts[2]]),
+            UndirectedPath([verts[0], verts[1], verts[3]]),
+            UndirectedPath([verts[0], verts[2], verts[3]]),
+            UndirectedPath([verts[1], verts[2], verts[3]])
+        ]
 
         # Execute
         actual_cycles = self.die.__find_simple_cycles__(cycle_lens=self.num_faces_on_vertices)
 
         # Assert
-        for cycle in actual_cycles:
-            self.assertIn(cycle, expected_cycles)
+        for cycle in expected_cycles:
+            self.assertIn(cycle, actual_cycles)
 
 
 
@@ -75,14 +83,24 @@ class D6TestCase(unittest.TestCase, DieTestCaseMixin):
 
     def test_cycle_finding(self):
         # Setup
-        expected_cycles = []
+        verts = self.die.verts
+        expected_cycles = [
+            UndirectedPath([verts[0], verts[1], verts[2]]),
+            UndirectedPath([verts[0], verts[1], verts[3]]),
+            UndirectedPath([verts[0], verts[4], verts[3]]),
+            UndirectedPath([verts[0], verts[4], verts[2]]),
+            UndirectedPath([verts[5], verts[1], verts[2]]),
+            UndirectedPath([verts[5], verts[1], verts[3]]),
+            UndirectedPath([verts[5], verts[4], verts[3]]),
+            UndirectedPath([verts[5], verts[4], verts[2]])
+        ]
 
         # Execute
         actual_cycles = self.die.__find_simple_cycles__(cycle_lens=self.num_faces_on_vertices)
 
         # Assert
-        for cycle in actual_cycles:
-            self.assertIn(cycle, expected_cycles)
+        for cycle in expected_cycles:
+            self.assertIn(cycle, actual_cycles)
 
 
 if __name__ == '__main__':
