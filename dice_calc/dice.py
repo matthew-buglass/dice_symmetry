@@ -34,15 +34,13 @@ class Die:
         self.edges = [Edge(self.verts[e[0]-1], self.verts[e[1]-1])for e in adjacent_faces]
         self.opp_faces = {self.verts[p[0]-1]: self.verts[p[1]-1] for p in opposing_faces}
 
-        self.cycles = []
-        for cyc_len in num_faces_on_vertices:
-            self.cycles.extend(self.__find_simple_cycles__(cyc_len))
+        self.cycles = self.__find_simple_cycles__(num_faces_on_vertices)
 
-    def __find_simple_cycles__(self, cycle_len) -> list[list[WeightedVertex]]:
+    def __find_simple_cycles__(self, cycle_lens) -> list[list[WeightedVertex]]:
         """
         Finds all unique simple cycles of a specific length in an edge_list.
         :param edges: The undirected edge list of the graph
-        :param cycle_len: The number of unique vertices in the cycles. The first vertex counts as the first and last.
+        :param cycle_lens: The list of number of unique vertices in the cycles. The first vertex counts as the first and last.
         :return: A list of unique simple cycles in the graph. The closing edge goes from the last to the first vertex
         """
         def cycle_helper(edge_dict: dict[int: list[Edge]], curr_path: list[WeightedVertex], cycle_len: int, cycles: list[UndirectedPath]):
@@ -62,7 +60,7 @@ class Die:
                     new_path.append(edge.follow(curr_path[-1]))
                     cycle_helper(edge_dict, new_path, cycle_len, cycles)
 
-        cycles = []
+        all_cycles = []
         edge_dict = {}
         for edge in self.edges:
             try:
@@ -77,9 +75,12 @@ class Die:
                 edge_dict[edge.dst] = {}
                 edge_dict[edge.dst][edge.src] = edge
 
-        for v in self.verts:
-            cycle_helper(edge_dict, UndirectedPath([v]), cycle_len, cycles)
-        return cycles
+        for cycle_len in cycle_lens:
+            cycles = []
+            for v in self.verts:
+                cycle_helper(edge_dict, UndirectedPath([v]), cycle_len, cycles)
+            all_cycles.extend(cycles)
+        return all_cycles
 
     def __get_vertex_weights__(self) -> list[float]:
         """

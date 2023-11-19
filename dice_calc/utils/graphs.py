@@ -5,6 +5,9 @@ class Vertex:
     def __str__(self):
         return str(self.name)
 
+    def __repr__(self):
+        return str(self)
+
     def __eq__(self, other):
         assert other.__class__.__name__ == self.__class__.__name__
         return other.name == self.name
@@ -19,6 +22,7 @@ class WeightedVertex(Vertex):
 
     def __key__(self):
         return self.name, self.weight
+
     def __hash__(self):
         return hash(self.__key__())
 
@@ -40,6 +44,9 @@ class Edge:
             return "{}->{}".format(self.src, self.dst)
         else:
             return "{}--{}".format(self.src, self.dst)
+
+    def __repr__(self):
+        return str(self)
 
     def follow(self, src_vertex):
         if self.directed:
@@ -66,6 +73,9 @@ class UndirectedPath:
 
     def __str__(self):
         return str([str(v) for v in self.verts])
+
+    def __repr__(self):
+        return str(self)
 
     def copy(self):
         return UndirectedPath(self.verts.copy())

@@ -30,10 +30,6 @@ class DieTestCaseMixin:
             opposing_faces=self.opposing_faces
         )
 
-    def test_instantiation(self):
-        self.assertEqual(self.num_faces, len(self.die.verts))
-        self.assertEqual(self.die_vertices, len(self.die.cycles))
-
 class D4TestCase(unittest.TestCase, DieTestCaseMixin):
     num_faces = 4
     adjacent_faces = [(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)]
@@ -44,6 +40,21 @@ class D4TestCase(unittest.TestCase, DieTestCaseMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.instantiate_die()
+
+    def test_instantiation(self):
+        self.assertEqual(self.num_faces, len(self.die.verts))
+        self.assertEqual(self.die_vertices, len(self.die.cycles))
+
+    def test_cycle_finding(self):
+        # Setup
+        expected_cycles = []
+
+        # Execute
+        actual_cycles = self.die.__find_simple_cycles__(cycle_lens=self.num_faces_on_vertices)
+
+        # Assert
+        for cycle in actual_cycles:
+            self.assertIn(cycle, expected_cycles)
 
 
 
@@ -57,6 +68,21 @@ class D6TestCase(unittest.TestCase, DieTestCaseMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.instantiate_die()
+
+    def test_instantiation(self):
+        self.assertEqual(self.num_faces, len(self.die.verts))
+        self.assertEqual(self.die_vertices, len(self.die.cycles))
+
+    def test_cycle_finding(self):
+        # Setup
+        expected_cycles = []
+
+        # Execute
+        actual_cycles = self.die.__find_simple_cycles__(cycle_lens=self.num_faces_on_vertices)
+
+        # Assert
+        for cycle in actual_cycles:
+            self.assertIn(cycle, expected_cycles)
 
 
 if __name__ == '__main__':
