@@ -7,7 +7,7 @@ def npr(n, r):
 
 
 def face_weights_locked_one(num_faces, opp_faces):
-    face_vals_perms = permutations(iterable=range(2, num_faces), r=num_faces/2 - 1)
+    face_vals_perms = permutations(iterable=range(2, num_faces), r=num_faces//2 - 1)
 
     num_perms = npr(num_faces-2, num_faces/2 - 1)
     curr_perm = 0
