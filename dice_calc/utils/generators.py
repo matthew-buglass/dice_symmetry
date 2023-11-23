@@ -7,10 +7,12 @@ def npr(n: int, r: int):
 
 
 def face_weights_locked_one(num_faces: int, opp_faces: list[tuple[int, int]]):
-    face_vals_perms = permutations(iterable=range(2, num_faces), r=num_faces//2 - 1)
+    # create permutations of opposite faces
+    face_value_pairs = {(i, (num_faces + 1)-i) for i in range(2, num_faces // 2 + 1)}
+    face_vals_perms = permutations(face_value_pairs)
 
     # Calculate the total number of permutations
-    num_perms = npr(num_faces-2, num_faces//2 - 1)
+    num_perms = factorial(len(face_value_pairs))
     curr_perm = 0
 
     # Set up the permutation
@@ -29,8 +31,8 @@ def face_weights_locked_one(num_faces: int, opp_faces: list[tuple[int, int]]):
         one_side_perm = next(face_vals_perms)
 
         for i, j in opp_faces:
-            perm[i] = one_side_perm[i-1]
-            perm[j] = (num_faces + 1) - one_side_perm[i-1]
+            perm[i] = one_side_perm[i-1][0]
+            perm[j] = one_side_perm[i-1][1]
 
         yield perm
 
