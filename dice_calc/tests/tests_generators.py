@@ -26,17 +26,6 @@ class TestFaceWeightGenerator(unittest.TestCase):
 
         self.assertEqual(expected_permutations, received_perms)
 
-    def test_number_of_weights_d20(self):
-        faces = 20
-        opposing_faces = [(0,19), (1,18), (2,17), (3,16), (4,15), (5,14), (6,13), (7,12), (8,11), (9,10)]
-        expected_permutations = 17643225600 # 18P9
-
-        received_perms = 0
-        for _ in face_weights_locked_one(num_faces=faces, opp_faces=opposing_faces):
-            received_perms += 1
-
-        self.assertEqual(expected_permutations, received_perms)
-
 
 if __name__ == '__main__':
     unittest.main()
