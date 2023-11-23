@@ -16,6 +16,13 @@ class Vertex:
         assert other.__class__.__name__ == self.__class__.__name__
         return other.name == self.name
 
+    def __key__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.__key__())
+
+
 class WeightedVertex(Vertex):
     def __init__(self, name, weight):
         super().__init__(name)
@@ -26,9 +33,6 @@ class WeightedVertex(Vertex):
 
     def __key__(self):
         return self.name, self.weight
-
-    def __hash__(self):
-        return hash(self.__key__())
 
 class Edge:
     def __init__(self, src_vert: Vertex, dst_vert: Vertex, directed: bool=False):
@@ -81,7 +85,7 @@ class UndirectedPath:
     def __repr__(self):
         return str(self)
 
-    def copy(self):
+    def deep_copy(self):
         return UndirectedPath(self.verts.copy())
 
     def __len__(self):

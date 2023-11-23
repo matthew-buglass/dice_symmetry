@@ -1,6 +1,6 @@
 import unittest
 
-from utils.graphs import Vertex, Edge
+from utils.graphs import Vertex, Edge, UndirectedPath
 
 
 class TestVertex(unittest.TestCase):
@@ -53,8 +53,44 @@ class TestEdge(unittest.TestCase):
         self.assertRaises(AssertionError, e1.follow, self.v3)
 
 class TestUndirectedPath(unittest.TestCase):
-    def test_something(self):
-        self.assertEqual(True, False)  # add assertion here
+    @classmethod
+    def setUpClass(cls):
+        cls.v1 = Vertex(0)
+        cls.v2 = Vertex(1)
+        cls.v3 = Vertex(2)
+        cls.v4 = Vertex(3)
+
+    def test_path_equivalency(self):
+        p1 = UndirectedPath([self.v1, self.v2, self.v3])
+        p2 = UndirectedPath([self.v2, self.v1, self.v3])
+        p3 = UndirectedPath([self.v1, self.v4, self.v3])
+
+        self.assertEqual(p1, p2)
+        self.assertNotEqual(p1, p3)
+
+    def test_path_extension(self):
+        p1 = UndirectedPath([self.v1, self.v2])
+        p2 = UndirectedPath([self.v1, self.v2, self.v3])
+
+        p1.append(self.v3)
+
+        self.assertEqual(p1, p2)
+
+    def test_path_deep_copy(self):
+        p1 = UndirectedPath([self.v1, self.v2, self.v3])
+
+        p2 = p1.deep_copy()
+
+        self.assertEqual(p1, p2)
+
+        p2.verts[0] = self.v4
+        self.assertNotEqual(p1, p2)
+
+    def test_path_length(self):
+        self.assertEqual(3, len(UndirectedPath([self.v1, self.v2, self.v3])))
+
+    def test_path_indexing(self):
+        self.assertEqual(self.v2, UndirectedPath([self.v1, self.v2, self.v3])[1])
 
 
 if __name__ == '__main__':
