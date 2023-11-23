@@ -30,6 +30,13 @@ class TestEdge(unittest.TestCase):
         self.assertEqual(e1, e2)
         self.assertNotEqual(e1, e3)
 
+    def test_undirected_edge_follow(self):
+        e1 = Edge(self.v1, self.v2, directed=False)
+
+        self.assertEqual(e1.follow(self.v1), self.v2)
+        self.assertEqual(e1.follow(self.v2), self.v1)
+        self.assertRaises(AssertionError, e1.follow, self.v3)
+
     def test_directed_edge_equivalency(self):
         e1 = Edge(self.v1, self.v2, directed=True)
         e2 = Edge(self.v2, self.v1, directed=True)
@@ -38,6 +45,12 @@ class TestEdge(unittest.TestCase):
         self.assertNotEqual(e1, e2)
         self.assertNotEqual(e1, e3)
 
+    def test_directed_edge_follow(self):
+        e1 = Edge(self.v1, self.v2, directed=True)
+
+        self.assertEqual(e1.follow(self.v1), self.v2)
+        self.assertRaises(AssertionError, e1.follow, self.v2)
+        self.assertRaises(AssertionError, e1.follow, self.v3)
 
 class TestUndirectedPath(unittest.TestCase):
     def test_something(self):
