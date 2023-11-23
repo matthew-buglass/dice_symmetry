@@ -7,7 +7,7 @@ class TestFaceWeightGenerator(unittest.TestCase):
     def test_number_of_weights_d6(self):
         faces = 6
         opposing_faces = [(0,5), (1,4), (2,3)]
-        expected_permutations = 12 # 4P2
+        expected_permutations = 2 # 2!
 
         received_perms = 0
         for _ in face_weights_locked_one(num_faces=faces, opp_faces=opposing_faces):
@@ -18,7 +18,7 @@ class TestFaceWeightGenerator(unittest.TestCase):
     def test_number_of_weights_d12(self):
         faces = 12
         opposing_faces = [(0,11), (1,10), (2,9), (3,8), (4,7), (5,6)]
-        expected_permutations = 30240 # 10P5
+        expected_permutations = 120 # 5!
 
         received_perms = 0
         for _ in face_weights_locked_one(num_faces=faces, opp_faces=opposing_faces):
