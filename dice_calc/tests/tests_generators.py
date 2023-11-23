@@ -28,7 +28,7 @@ class TestFaceWeightGenerator(unittest.TestCase):
 
     def test_number_of_weights_d20(self):
         faces = 20
-        opposing_faces = [(1,20), (2,19), (3,18), (4,17), (5,16), (6,15), (7,14), (8,13), (9,12), (10,11)]
+        opposing_faces = [(0,19), (1,18), (2,17), (3,16), (4,15), (5,14), (6,13), (7,12), (8,11), (9, 10)]
         expected_permutations = 362880 # 9!
 
         received_perms = 0
@@ -55,7 +55,7 @@ class TestFaceWeightGenerator(unittest.TestCase):
 
     def test_each_number_appears_once_d20(self):
         faces = 20
-        opposing_faces = [(1, 20), (2, 19), (3, 18), (4, 17), (5, 16), (6, 15), (7, 14), (8, 13), (9, 12), (10, 11)]
+        opposing_faces = [(0,19), (1,18), (2,17), (3,16), (4,15), (5,14), (6,13), (7,12), (8,11), (9, 10)]
         expected_numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 
         for weights in face_weights_locked_one(num_faces=faces, opp_faces=opposing_faces):
@@ -81,7 +81,7 @@ class TestFaceWeightGenerator(unittest.TestCase):
 
     def test_opposite_sides_add_to_21_d20(self):
         faces = 20
-        opposing_faces = [(1, 20), (2, 19), (3, 18), (4, 17), (5, 16), (6, 15), (7, 14), (8, 13), (9, 12), (10, 11)]
+        opposing_faces = [(0,19), (1,18), (2,17), (3,16), (4,15), (5,14), (6,13), (7,12), (8,11), (9, 10)]
         expected_sum = 21
 
         for weights in face_weights_locked_one(num_faces=faces, opp_faces=opposing_faces):
@@ -104,7 +104,7 @@ class TestFaceWeightGenerator(unittest.TestCase):
 
     def test_one_weight_per_side_d20(self):
         faces = 20
-        opposing_faces = [(1, 20), (2, 19), (3, 18), (4, 17), (5, 16), (6, 15), (7, 14), (8, 13), (9, 12), (10, 11)]
+        opposing_faces = [(0,19), (1,18), (2,17), (3,16), (4,15), (5,14), (6,13), (7,12), (8,11), (9, 10)]
 
         for weights in face_weights_locked_one(num_faces=faces, opp_faces=opposing_faces):
             self.assertEqual(faces, len(weights))
