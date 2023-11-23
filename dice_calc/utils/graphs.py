@@ -1,5 +1,9 @@
 class Vertex:
     def __init__(self, name):
+        """
+        A vertex
+        :param name: a unique identifier of the vertex
+        """
         self.name = name
 
     def __str__(self):
