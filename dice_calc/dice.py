@@ -3,6 +3,7 @@ from itertools import permutations
 import numpy as np
 
 from utils.decorators import timed
+from utils.generators import face_weights_locked_one
 from utils.graphs import Edge, WeightedVertex, UndirectedPath
 
 
@@ -32,7 +33,8 @@ class Die:
         """
         self.verts = [WeightedVertex(i, i+1) for i in range(num_faces)]
         self.edges = [Edge(self.verts[e[0]-1], self.verts[e[1]-1])for e in adjacent_faces]
-        self.opp_faces = {self.verts[p[0]-1]: self.verts[p[1]-1] for p in opposing_faces}
+        self.opposing_faces = opposing_faces
+        self.opp_faces_dict = {self.verts[p[0] - 1]: self.verts[p[1] - 1] for p in opposing_faces}
 
         self.cycles = self.__find_simple_cycles__(num_faces_on_vertices)
 
@@ -93,16 +95,6 @@ class Die:
             vert_weights.append(weight)
         return vert_weights
 
-    def __get_opposing_face_weights__(self):
-        """
-        Calculates the average weight of each of the die's opposing faces
-        :return: a list floats of the average weight of the die's opposing sides
-        """
-        weights = []
-        for i, j in self.opp_faces.items():
-            weights.append((i.weight + j.weight) / 2)
-        return weights
-
     def __assign_weights__(self, weights: list[float]):
         """
         Assigns the provided weights to the vertices in order. There must be the same number of weights as there are
@@ -114,27 +106,6 @@ class Die:
         for i, w in enumerate(weights):
             self.verts[i].weight = w
 
-    def __expand_half_weights__(self, half_weights):
-        """
-        Yields a full set of weights from the lower half generator of weights
-        :param half_weights: a collection of face values from 2 to half of the number of faces.
-            (ie for a d8, a permutation of [2, 3, 4])
-        :return: A full list of weights to apply to a die's faces, maintaining the same average face value between
-        opposite faces.
-        """
-        num_faces = len(self.verts)
-        full_weights = [0] * num_faces
-        for a, b in self.opp_faces.items():
-            if a.name == 0:
-                full_weights[a.name] = 1
-                full_weights[b.name] = num_faces
-            else:
-                small_face_weight = half_weights[a.name-1]
-                full_weights[a.name] = small_face_weight
-                full_weights[b.name] = num_faces - small_face_weight + 1
-
-        return full_weights
-
     @timed
     def calc_optimum_face_weights_locked_opp_faces(self):
         """
@@ -142,15 +113,10 @@ class Die:
         facial symmetry (average of opposing faces is identical) a requirement.
         :return: a string representation of face ids and the weights attributed.
         """
-        # we are always going to assign 1 to face 0 to avoid rotating the same number configurations around
-        # the die. This also locks it's opposing face to be the maximum face value of the die
-        half_weight_perms = permutations(range(2, len(self.verts) // 2 + 1))
-
         optimal_weights = [0] * len(self.verts)
         optimal_weights_sd = 99999999999999
 
-        for hw in half_weight_perms:
-            weights = self.__expand_half_weights__(hw)
+        for weights in face_weights_locked_one(num_faces=len(self.verts), opp_faces=self.opposing_faces):
             self.__assign_weights__(weights=weights)
             sd = np.std(self.__get_vertex_weights__())
             if sd < optimal_weights_sd:
