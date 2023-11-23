@@ -61,6 +61,7 @@ class D4TestCase(unittest.TestCase, DieTestCaseMixin):
         actual_cycles = self.die.__find_simple_cycles__(cycle_lens=self.num_faces_on_vertices)
 
         # Assert
+        self.assertEqual(len(expected_cycles), len(actual_cycles))
         for cycle in expected_cycles:
             self.assertIn(cycle, actual_cycles)
 
@@ -99,6 +100,7 @@ class D6TestCase(unittest.TestCase, DieTestCaseMixin):
         actual_cycles = self.die.__find_simple_cycles__(cycle_lens=self.num_faces_on_vertices)
 
         # Assert
+        self.assertEqual(len(expected_cycles), len(actual_cycles))
         for cycle in expected_cycles:
             self.assertIn(cycle, actual_cycles)
 

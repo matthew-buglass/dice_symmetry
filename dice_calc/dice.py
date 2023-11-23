@@ -34,37 +34,14 @@ class Die:
         self.verts = [WeightedVertex(i, i+1) for i in range(num_faces)]
         self.edges = [Edge(self.verts[e[0]-1], self.verts[e[1]-1])for e in adjacent_faces]
         self.opposing_faces = opposing_faces
-        self.opp_faces_dict = {self.verts[p[0] - 1]: self.verts[p[1] - 1] for p in opposing_faces}
+        # self.opp_faces_dict = {self.verts[p[0] - 1]: self.verts[p[1] - 1] for p in opposing_faces}
 
         self.cycles = self.__find_simple_cycles__(num_faces_on_vertices)
-
-    def __find_simple_cycles__(self, cycle_lens) -> list[list[WeightedVertex]]:
-        """
-        Finds all unique simple cycles of a specific length in an edge_list.
-        :param edges: The undirected edge list of the graph
-        :param cycle_lens: The list of number of unique vertices in the cycles. The first vertex counts as the first and last.
-        :return: A list of unique simple cycles in the graph. The closing edge goes from the last to the first vertex
-        """
-        def cycle_helper(edge_dict: dict[int: list[Edge]], curr_path: list[WeightedVertex], cycle_len: int, cycles: list[UndirectedPath]):
-            if len(curr_path) == cycle_len:
-                # if there's an edge from the last to the first vertex add the path to the collected cycles
-                try:
-                    last_edge = edge_dict[curr_path[-1]][curr_path[0]]
-                    if not curr_path in cycles:
-                        cycles.append(curr_path)
-                except KeyError:
-                    pass
-            else:
-                start_vert = curr_path[-1]
-                edges_to_try = [e for e in edge_dict[start_vert].values() if e.follow(start_vert) not in curr_path]
-                for edge in edges_to_try:
-                    new_path = curr_path.copy()
-                    new_path.append(edge.follow(curr_path[-1]))
-                    cycle_helper(edge_dict, new_path, cycle_len, cycles)
-
-        all_cycles = []
+        
+    def __get_edge_dict__(self):
         edge_dict = {}
         for edge in self.edges:
+            assert not edge.directed
             try:
                 edge_dict[edge.src][edge.dst] = edge
             except KeyError:
@@ -76,11 +53,43 @@ class Die:
             except KeyError:
                 edge_dict[edge.dst] = {}
                 edge_dict[edge.dst][edge.src] = edge
+                
+        return edge_dict
+        
+
+    def __find_simple_cycles__(self, cycle_lens) -> list[list[WeightedVertex]]:
+        """
+        Finds all unique simple cycles of a specific length in an edge_list.
+        :param edges: The undirected edge list of the graph
+        :param cycle_lens: The list of number of unique vertices in the cycles. The first vertex counts as the first and last.
+        :return: A list of unique simple cycles in the graph. The closing edge goes from the last to the first vertex
+        """
+        def cycle_helper(edge_dict: dict[WeightedVertex, dict[WeightedVertex, Edge]], 
+                         curr_path: list[WeightedVertex], 
+                         cycle_len: int, 
+                         cycles: list[UndirectedPath]):
+            if len(curr_path) == cycle_len:
+                # if there's an edge from the last to the first vertex add the path to the collected cycles
+                try:
+                    _ = edge_dict[curr_path[-1]][curr_path[0]]
+                    if not curr_path in cycles:
+                        cycles.append(curr_path)
+                except KeyError:
+                    pass
+            else:
+                last_vertex = curr_path[-1]
+                edges_to_try = [e for e in edge_dict[last_vertex].values() if e.follow(last_vertex) not in curr_path]
+                for edge in edges_to_try:
+                    new_path = curr_path.copy()
+                    new_path.append(edge.follow(curr_path[-1]))
+                    cycle_helper(edge_dict, new_path, cycle_len, cycles)
+
+        all_cycles = []
 
         for cycle_len in cycle_lens:
             cycles = []
             for v in self.verts:
-                cycle_helper(edge_dict, UndirectedPath([v]), cycle_len, cycles)
+                cycle_helper(self.__get_edge_dict__(), UndirectedPath([v]), cycle_len, cycles)
             all_cycles.extend(cycles)
         return all_cycles
 
