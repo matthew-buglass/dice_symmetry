@@ -107,7 +107,7 @@ class Die:
             self.verts[i].weight = w
 
     @timed
-    def calc_optimum_face_weights_locked_opp_faces(self):
+    def calc_optimum_face_weights_locked_opposing_faces(self):
         """
         Finds the weight (face number) positioning that minimizes the standard deviation of die vertex weights, keeping
         facial symmetry (average of opposing faces is identical) a requirement.
@@ -142,7 +142,7 @@ if __name__ == '__main__':
         opposing_faces=[(1,3), (2,4)]
     )
 
-    sd, t = d4.calc_optimum_face_weights_locked_opp_faces()
+    sd, t = d4.calc_optimum_face_weights_locked_opposing_faces()
     print("#### D4 calculations ####")
     print("\tOpt vert weight sd of a d4: {:.4f}".format(sd))
     print(f"\tOpt face value placement of a d4: {d4.faces_to_string()}")
@@ -155,7 +155,7 @@ if __name__ == '__main__':
         num_faces_on_vertices=[3],
         opposing_faces=[(1, 6), (2, 5), (3, 4)]
     )
-    sd, t = d6.calc_optimum_face_weights_locked_opp_faces()
+    sd, t = d6.calc_optimum_face_weights_locked_opposing_faces()
     print("#### D6 calculations ####")
     print("\tOpt vert weight sd of a d4: {:.4f}".format(sd))
     print(f"\tOpt face value placement of a d4: {d6.faces_to_string()}")
