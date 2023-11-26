@@ -1,7 +1,7 @@
 import unittest
 
 from dice import Die
-from utils.graphs import UndirectedPath
+from utils.graphs import UndirectedPath, Edge
 
 
 class DieTestCaseMixin:
@@ -46,6 +46,19 @@ class D4TestCase(unittest.TestCase, DieTestCaseMixin):
     def test_instantiation(self):
         self.assertEqual(self.num_faces, len(self.die.verts))
         self.assertEqual(self.die_vertices, len(self.die.cycles))
+
+    def test_edge_dict_building(self):
+        verts = self.die.verts
+        expected_dict = {
+            verts[0] : [Edge(verts[0], verts[1]), Edge(verts[0], verts[2]), Edge(verts[0], verts[3])],
+            verts[1] : [Edge(verts[0], verts[1]), Edge(verts[1], verts[2]), Edge(verts[1], verts[3])],
+            verts[2] : [Edge(verts[0], verts[2]), Edge(verts[1], verts[2]), Edge(verts[2], verts[3])],
+            verts[3] : [Edge(verts[0], verts[3]), Edge(verts[1], verts[3]), Edge(verts[2], verts[3])]
+        }
+
+        self.assertDictEqual(expected_dict, self.die.__get_edge_dict__())
+
+
 
     def test_cycle_finding(self):
         # Setup

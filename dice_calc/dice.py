@@ -31,10 +31,9 @@ class Die:
             the die. For unfair dice (D10, D30, etc.) this may differ in the die (3 and 5, 3 and 5), which is why this
             is a list.
         """
-        self.verts = [WeightedVertex(i, i+1) for i in range(num_faces)]
+        self.verts = [WeightedVertex(index=i, name=i+1, weight=0) for i in range(num_faces)]
         self.edges = [Edge(self.verts[e[0]-1], self.verts[e[1]-1])for e in adjacent_faces]
         self.opposing_faces = opposing_faces
-        # self.opp_faces_dict = {self.verts[p[0] - 1]: self.verts[p[1] - 1] for p in opposing_faces}
 
         self.cycles = self.__find_simple_cycles__(num_faces_on_vertices)
         
@@ -43,16 +42,16 @@ class Die:
         for edge in self.edges:
             assert not edge.directed
             try:
-                edge_dict[edge.src][edge.dst] = edge
+                edge_dict[edge.src].append(edge)
             except KeyError:
-                edge_dict[edge.src] = {}
-                edge_dict[edge.src][edge.dst] = edge
+                edge_dict[edge.src] = []
+                edge_dict[edge.src].append(edge)
 
             try:
-                edge_dict[edge.dst][edge.src] = edge
+                edge_dict[edge.dst].append(edge)
             except KeyError:
-                edge_dict[edge.dst] = {}
-                edge_dict[edge.dst][edge.src] = edge
+                edge_dict[edge.dst] = []
+                edge_dict[edge.dst].append(edge)
                 
         return edge_dict
         
@@ -64,23 +63,23 @@ class Die:
         :param cycle_lens: The list of number of unique vertices in the cycles. The first vertex counts as the first and last.
         :return: A list of unique simple cycles in the graph. The closing edge goes from the last to the first vertex
         """
-        def cycle_helper(edge_dict: dict[WeightedVertex, dict[WeightedVertex, Edge]], 
-                         curr_path: list[WeightedVertex], 
+        def cycle_helper(edge_dict: dict[WeightedVertex, list[Edge]],
+                         curr_path: UndirectedPath,
                          cycle_len: int, 
                          cycles: list[UndirectedPath]):
             if len(curr_path) == cycle_len:
                 # if there's an edge from the last to the first vertex add the path to the collected cycles
-                try:
-                    _ = edge_dict[curr_path[-1]][curr_path[0]]
-                    if not curr_path in cycles:
+                for edge in edge_dict[curr_path[-1]]:
+                    try:
+                        edge.follow(curr_path[0])
                         cycles.append(curr_path)
-                except KeyError:
-                    pass
+                    except AssertionError:
+                        pass
             else:
                 last_vertex = curr_path[-1]
-                edges_to_try = [e for e in edge_dict[last_vertex].values() if e.follow(last_vertex) not in curr_path]
+                edges_to_try = [e for e in edge_dict[last_vertex] if e.follow(last_vertex) not in curr_path]
                 for edge in edges_to_try:
-                    new_path = curr_path.copy()
+                    new_path = curr_path.deep_copy()
                     new_path.append(edge.follow(curr_path[-1]))
                     cycle_helper(edge_dict, new_path, cycle_len, cycles)
 

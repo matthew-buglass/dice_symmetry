@@ -1,9 +1,11 @@
 class Vertex:
-    def __init__(self, name):
+    def __init__(self, index, name):
         """
         A vertex
+        :param index: the index of the vertex in the vertex list
         :param name: a unique identifier of the vertex
         """
+        self.index = index
         self.name = name
 
     def __str__(self):
@@ -24,8 +26,8 @@ class Vertex:
 
 
 class WeightedVertex(Vertex):
-    def __init__(self, name, weight):
-        super().__init__(name)
+    def __init__(self, index, name, weight):
+        super().__init__(index, name)
         self.weight = weight
 
     def __str__(self):
