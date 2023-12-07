@@ -5,9 +5,9 @@ from utils.graphs import Vertex, Edge, UndirectedPath
 
 class TestVertex(unittest.TestCase):
     def test_vertex_equivalency(self):
-        v1 = Vertex(0)
-        v2 = Vertex(0)
-        v3 = Vertex(1)
+        v1 = Vertex(0, 1)
+        v2 = Vertex(0, 1)
+        v3 = Vertex(1, 2)
 
         self.assertEqual(v1, v2)
         self.assertNotEqual(v1, v3)
@@ -15,9 +15,9 @@ class TestVertex(unittest.TestCase):
 class TestEdge(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.v1 = Vertex(0)
-        cls.v2 = Vertex(1)
-        cls.v3 = Vertex(2)
+        cls.v1 = Vertex(0, 1)
+        cls.v2 = Vertex(1, 2)
+        cls.v3 = Vertex(2, 3)
 
     def test_edge_default_is_undirected(self):
         self.assertFalse(Edge(self.v1, self.v2).directed)
@@ -55,10 +55,10 @@ class TestEdge(unittest.TestCase):
 class TestUndirectedPath(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.v1 = Vertex(0)
-        cls.v2 = Vertex(1)
-        cls.v3 = Vertex(2)
-        cls.v4 = Vertex(3)
+        cls.v1 = Vertex(0 ,1)
+        cls.v2 = Vertex(1, 2)
+        cls.v3 = Vertex(2, 3)
+        cls.v4 = Vertex(3, 4)
 
     def test_path_equivalency(self):
         p1 = UndirectedPath([self.v1, self.v2, self.v3])
