@@ -31,13 +31,13 @@ class Die:
             the die. For unfair dice (D10, D30, etc.) this may differ in the die (3 and 5, 3 and 5), which is why this
             is a list.
         """
-        self.verts = [WeightedVertex(index=i, name=i+1, weight=0) for i in range(num_faces)]
-        self.edges = [Edge(self.verts[e[0]-1], self.verts[e[1]-1])for e in adjacent_faces]
+        self.verts = [WeightedVertex(index=i, name=i + 1, weight=0) for i in range(num_faces)]
+        self.edges = [Edge(self.verts[e[0] - 1], self.verts[e[1] - 1]) for e in adjacent_faces]
         self.opposing_faces = opposing_faces
 
         self.cycles = self.__find_simple_cycles__(num_faces_on_vertices)
-        
-    def __get_edge_dict__(self):
+
+    def __get_edge_dict__(self) -> dict[WeightedVertex, list[Edge]]:
         edge_dict = {}
         for edge in self.edges:
             assert not edge.directed
@@ -52,9 +52,8 @@ class Die:
             except KeyError:
                 edge_dict[edge.dst] = []
                 edge_dict[edge.dst].append(edge)
-                
+
         return edge_dict
-        
 
     def __find_simple_cycles__(self, cycle_lens) -> list[list[WeightedVertex]]:
         """
@@ -63,9 +62,10 @@ class Die:
         :param cycle_lens: The list of number of unique vertices in the cycles. The first vertex counts as the first and last.
         :return: A list of unique simple cycles in the graph. The closing edge goes from the last to the first vertex
         """
+
         def cycle_helper(edge_dict: dict[WeightedVertex, list[Edge]],
                          curr_path: UndirectedPath,
-                         cycle_len: int, 
+                         cycle_len: int,
                          cycles: list[UndirectedPath]):
             if len(curr_path) == cycle_len:
                 # if there's an edge from the last to the first vertex add the path to the collected cycles
@@ -77,20 +77,20 @@ class Die:
                         pass
             else:
                 last_vertex = curr_path[-1]
-                edges_to_try = [e for e in edge_dict[last_vertex] if e.follow(last_vertex) not in curr_path]
-                for edge in edges_to_try:
+                verts_to_try = [e.follow(last_vertex) for e in edge_dict[last_vertex] if e.follow(last_vertex) not in curr_path]
+                for vert in verts_to_try:
                     new_path = curr_path.deep_copy()
-                    new_path.append(edge.follow(curr_path[-1]))
+                    new_path.append(vert)
                     cycle_helper(edge_dict, new_path, cycle_len, cycles)
 
         all_cycles = []
 
         for cycle_len in cycle_lens:
             cycles = []
-            for v in self.verts:
-                cycle_helper(self.__get_edge_dict__(), UndirectedPath([v]), cycle_len, cycles)
+            for e in self.edges:
+                cycle_helper(self.__get_edge_dict__(), UndirectedPath([e.src, e.dst]), cycle_len, cycles)
             all_cycles.extend(cycles)
-        return all_cycles
+        return list(set(all_cycles))
 
     def __get_vertex_weights__(self) -> list[float]:
         """
@@ -145,9 +145,9 @@ class Die:
 if __name__ == '__main__':
     d4 = Die(
         num_faces=4,
-        adjacent_faces=[(1,2), (1,3), (1,4), (2,3), (2,4), (3,4)],
+        adjacent_faces=[(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)],
         num_faces_on_vertices=[3],
-        opposing_faces=[(1,3), (2,4)]
+        opposing_faces=[(1, 3), (2, 4)]
     )
 
     sd, t = d4.calc_optimum_face_weights_locked_opposing_faces()
