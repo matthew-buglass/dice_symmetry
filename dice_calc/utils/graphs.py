@@ -131,11 +131,13 @@ class UndirectedCycle(UndirectedPath):
         Construct a list of a circular permutations of the path
         :return: a list of circular permutations of the path's vertices
         """
-        double_perm = self.verts.copy().extend(self.verts.copy())
+        double_perm = self.verts.copy() + self.verts.copy()
         circ_perms = []
 
         for i in range(len(self)):
             circ_perms.append(double_perm[i:i + len(self)])
+
+        circ_perms.sort()
 
         return circ_perms
 
@@ -146,7 +148,7 @@ class UndirectedCycle(UndirectedPath):
         representation of the path.
         :return:
         """
-        return str(self)
+        return str(self.__circ_perms__()[0])
 
 class Graph:
     def __init__(self, vertices: list[Vertex], edges: list[Edge]):

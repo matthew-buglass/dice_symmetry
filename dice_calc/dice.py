@@ -4,7 +4,7 @@ import numpy as np
 
 from utils.decorators import timed
 from utils.generators import face_weights_locked_one
-from utils.graphs import Edge, WeightedVertex, UndirectedPath
+from utils.graphs import Edge, WeightedVertex, UndirectedPath, UndirectedCycle
 
 
 class Die:
@@ -55,7 +55,7 @@ class Die:
 
         return edge_dict
 
-    def __find_simple_cycles__(self, cycle_lens) -> list[list[WeightedVertex]]:
+    def __find_simple_cycles__(self, cycle_lens) -> list[UndirectedCycle]:
         """
         Finds all unique simple cycles of a specific length in an edge_list.
         :param edges: The undirected edge list of the graph
@@ -72,7 +72,7 @@ class Die:
                 for edge in edge_dict[curr_path[-1]]:
                     try:
                         edge.follow(curr_path[0])
-                        cycles.append(curr_path)
+                        cycles.append(UndirectedCycle(curr_path.verts))
                     except AssertionError:
                         pass
             else:
