@@ -1,7 +1,7 @@
 import unittest
 
 from dice import Die
-from utils.graphs import UndirectedPath, Edge
+from utils.graphs import UndirectedPath, Edge, UndirectedCycle
 
 
 class DieTestCaseMixin:
@@ -64,10 +64,10 @@ class D4TestCase(unittest.TestCase, DieTestCaseMixin):
         # Setup
         verts = self.die.verts
         expected_cycles = [
-            UndirectedPath([verts[0], verts[1], verts[2]]),
-            UndirectedPath([verts[0], verts[1], verts[3]]),
-            UndirectedPath([verts[0], verts[2], verts[3]]),
-            UndirectedPath([verts[1], verts[2], verts[3]])
+            UndirectedCycle([verts[0], verts[1], verts[2]]),
+            UndirectedCycle([verts[0], verts[1], verts[3]]),
+            UndirectedCycle([verts[0], verts[2], verts[3]]),
+            UndirectedCycle([verts[1], verts[2], verts[3]])
         ]
 
         # Execute
@@ -99,14 +99,14 @@ class D6TestCase(unittest.TestCase, DieTestCaseMixin):
         # Setup
         verts = self.die.verts
         expected_cycles = [
-            UndirectedPath([verts[0], verts[1], verts[2]]),
-            UndirectedPath([verts[0], verts[1], verts[3]]),
-            UndirectedPath([verts[0], verts[4], verts[3]]),
-            UndirectedPath([verts[0], verts[4], verts[2]]),
-            UndirectedPath([verts[5], verts[1], verts[2]]),
-            UndirectedPath([verts[5], verts[1], verts[3]]),
-            UndirectedPath([verts[5], verts[4], verts[3]]),
-            UndirectedPath([verts[5], verts[4], verts[2]])
+            UndirectedCycle([verts[0], verts[1], verts[2]]),
+            UndirectedCycle([verts[0], verts[1], verts[3]]),
+            UndirectedCycle([verts[0], verts[4], verts[3]]),
+            UndirectedCycle([verts[0], verts[4], verts[2]]),
+            UndirectedCycle([verts[5], verts[1], verts[2]]),
+            UndirectedCycle([verts[5], verts[1], verts[3]]),
+            UndirectedCycle([verts[5], verts[4], verts[3]]),
+            UndirectedCycle([verts[5], verts[4], verts[2]])
         ]
 
         # Execute

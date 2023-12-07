@@ -88,15 +88,15 @@ class UndirectedPath:
         self.verts = verts
 
     def __eq__(self, other):
-        other_set = set(other.verts)
-        self_set = set(self.verts)
-        return len(self_set.difference(other_set)) == 0
+        other_rev = other.verts.copy()
+        other_rev.reverse()
+        return self.verts == other.verts or self.verts == other_rev
 
     def append(self, other):
         self.verts.append(other)
 
     def __str__(self):
-        return str([str(v) for v in self.verts])
+        return self.__repr__()
 
     def __repr__(self):
         """
@@ -108,7 +108,7 @@ class UndirectedPath:
         options[1].reverse()
         options.sort()
 
-        return str(str(options[0]))
+        return str(options[0])
 
     def deep_copy(self):
         return UndirectedPath(self.verts.copy())
@@ -125,8 +125,17 @@ class UndirectedPath:
     def __hash__(self):
         return hash(self.__key__())
 
+
 class UndirectedCycle(UndirectedPath):
-    def __circ_perms__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.circ_perms = self.__calc_circ_perms__()
+
+    def append(self, other):
+        super().append(other)
+        self.circ_perms = self.__calc_circ_perms__()
+
+    def __calc_circ_perms__(self):
         """
         Construct a list of a circular permutations of the path
         :return: a list of circular permutations of the path's vertices
@@ -148,7 +157,16 @@ class UndirectedCycle(UndirectedPath):
         representation of the path.
         :return:
         """
-        return str(self.__circ_perms__()[0])
+        return str(self.circ_perms[0])
+
+    def __eq__(self, other):
+        return other.verts in self.circ_perms
+
+    def __key__(self):
+        return self.__repr__()
+
+    def __hash__(self):
+        return hash(self.__key__())
 
 class Graph:
     def __init__(self, vertices: list[Vertex], edges: list[Edge]):
