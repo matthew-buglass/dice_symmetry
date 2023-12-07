@@ -96,6 +96,12 @@ class UndirectedPath:
     def __getitem__(self, *args, **kwargs):
         return self.verts.__getitem__(*args, **kwargs)
 
+    def __key__(self):
+        return str(self.verts)
+
+    def __hash__(self):
+        return hash(self.__key__())
+
 class Graph:
     def __init__(self, vertices: list[Vertex], edges: list[Edge]):
         self.verts = vertices
