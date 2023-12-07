@@ -1,9 +1,13 @@
+import functools
+
+@functools.total_ordering
 class Vertex:
     def __init__(self, index, name):
         """
         A vertex
         :param index: the index of the vertex in the vertex list
-        :param name: a unique identifier of the vertex
+        :param name: a unique identifier of the vertex such that it imposes a total ordering.
+                        (ie. a vertex with a name 1 is less than a vertex with the name 2)
         """
         self.index = index
         self.name = name
@@ -15,8 +19,18 @@ class Vertex:
         return str(self)
 
     def __eq__(self, other):
-        assert other.__class__.__name__ == self.__class__.__name__
-        return other.name == self.name
+        assert other.__class__.__name__ == self.__class__.__name__, "Comparison between {} and {} not supported".format(
+            other.__class__.__name__,
+            self.__class__.__name__
+        )
+        return self.name == other.name
+
+    def __lt__(self, other):
+        assert other.__class__.__name__ == self.__class__.__name__, "Comparison between {} and {} not supported".format(
+            other.__class__.__name__,
+            self.__class__.__name__
+        )
+        return self.name < other.name
 
     def __key__(self):
         return self.name
@@ -85,7 +99,16 @@ class UndirectedPath:
         return str([str(v) for v in self.verts])
 
     def __repr__(self):
-        return str(self)
+        """
+        Because This is an undirected path, it can be traversed from front-to-back or back-to-front. So the unique
+        representation will be the lexicographically first path.
+        :return:
+        """
+        options = [self.verts, self.verts.copy()]
+        options[1].reverse()
+        options.sort()
+
+        return str(str(options[0]))
 
     def deep_copy(self):
         return UndirectedPath(self.verts.copy())
@@ -97,10 +120,33 @@ class UndirectedPath:
         return self.verts.__getitem__(*args, **kwargs)
 
     def __key__(self):
-        return str(self.verts)
+        return self.__repr__()
 
     def __hash__(self):
         return hash(self.__key__())
+
+class UndirectedCycle(UndirectedPath):
+    def __circ_perms__(self):
+        """
+        Construct a list of a circular permutations of the path
+        :return: a list of circular permutations of the path's vertices
+        """
+        double_perm = self.verts.copy().extend(self.verts.copy())
+        circ_perms = []
+
+        for i in range(len(self)):
+            circ_perms.append(double_perm[i:i + len(self)])
+
+        return circ_perms
+
+    def __repr__(self):
+        """
+        Because This is an undirected cycle, any circular permutation of the vertices in the path is the same path.
+        Therefore, I define the representation as the lexicographically first circular permutation as the unique
+        representation of the path.
+        :return:
+        """
+        return str(self)
 
 class Graph:
     def __init__(self, vertices: list[Vertex], edges: list[Edge]):
