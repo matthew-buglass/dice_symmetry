@@ -137,7 +137,7 @@ class UndirectedCycle(UndirectedPath):
 
     def __calc_circ_perms__(self):
         """
-        Construct a list of a circular permutations of the path
+        Construct a list of a circular permutations and reversed circular permutations of the path
         :return: a list of circular permutations of the path's vertices
         """
         double_perm = self.verts.copy() + self.verts.copy()
@@ -152,9 +152,9 @@ class UndirectedCycle(UndirectedPath):
 
     def __repr__(self):
         """
-        Because This is an undirected cycle, any circular permutation of the vertices in the path is the same path.
-        Therefore, I define the representation as the lexicographically first circular permutation as the unique
-        representation of the path.
+        Because this is an undirected cycle, any circular permutation of the vertices in the path or a circular
+        permutation of the reverse of the path is the same path. Therefore, I define the representation as the
+        lexicographically first circular permutation as the unique representation of the path.
         :return:
         """
         return str(self.circ_perms[0])
