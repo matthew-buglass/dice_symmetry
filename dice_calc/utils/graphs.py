@@ -137,14 +137,19 @@ class UndirectedCycle(UndirectedPath):
 
     def __calc_circ_perms__(self):
         """
-        Construct a list of a circular permutations and reversed circular permutations of the path
+        Construct a list of a circular permutations and reversed circular permutations and reverse circular permutations
+        of the path
         :return: a list of circular permutations of the path's vertices
         """
         double_perm = self.verts.copy() + self.verts.copy()
+        len_perm = len(double_perm)
         circ_perms = []
 
         for i in range(len(self)):
+            # Forward permutation
             circ_perms.append(double_perm[i:i + len(self)])
+            # Backwards permutation
+            circ_perms.append(double_perm[len_perm-i-1:len_perm-i-len(self)-1:-1])
 
         circ_perms.sort()
 
