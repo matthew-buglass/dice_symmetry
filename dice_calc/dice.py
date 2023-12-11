@@ -1,5 +1,3 @@
-from itertools import permutations
-
 import numpy as np
 
 from utils.decorators import timed
@@ -18,7 +16,7 @@ class Die:
         """
         An abstract undirected graph representation of a die. Vertices in the graph represent faces on a die, and the vertex
         weights are the face values of the die. A simple cycle of a given number of vertices represents the point, or
-        vertex, on the face of the die. In this way, we can calculate facial and vertex similarities of dice.
+        vertex, on the physical die. In this way, we can calculate facial and vertex similarities of dice.
 
         Inside the class we refer to the graphical representation, but outside the graph we refer to components
         as the die components.
@@ -38,6 +36,10 @@ class Die:
         self.cycles = self.__find_simple_cycles__(num_faces_on_vertices)
 
     def __get_edge_dict__(self) -> dict[WeightedVertex, list[Edge]]:
+        """
+        Builds a dictionary of vertices to outgoing edges for fast lookups of out-edges.
+        :return: a dictionary of WeightedVertices to a list of out-Edges.
+        """
         edge_dict = {}
         for edge in self.edges:
             assert not edge.directed
@@ -58,6 +60,9 @@ class Die:
     def __find_simple_cycles__(self, cycle_lens) -> list[UndirectedCycle]:
         """
         Finds all unique simple cycles of a specific length in an edge_list.
+
+        NOTE: still a work-in progress
+
         :param edges: The undirected edge list of the graph
         :param cycle_lens: The list of number of unique vertices in the cycles. The first vertex counts as the first and last.
         :return: A list of unique simple cycles in the graph. The closing edge goes from the last to the first vertex
