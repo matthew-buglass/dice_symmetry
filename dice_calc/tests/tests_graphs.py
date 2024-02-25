@@ -1,6 +1,6 @@
 import unittest
 
-from utils.graphs import Vertex, Edge, UndirectedPath
+from utils.graphs import Vertex, Edge, UndirectedPath, UndirectedCycle
 
 
 class TestVertex(unittest.TestCase):
@@ -62,7 +62,7 @@ class TestUndirectedPath(unittest.TestCase):
 
     def test_path_equivalency(self):
         p1 = UndirectedPath([self.v1, self.v2, self.v3])
-        p2 = UndirectedPath([self.v2, self.v1, self.v3])
+        p2 = UndirectedPath([self.v3, self.v2, self.v1])
         p3 = UndirectedPath([self.v1, self.v4, self.v3])
 
         self.assertEqual(p1, p2)
@@ -91,6 +91,52 @@ class TestUndirectedPath(unittest.TestCase):
 
     def test_path_indexing(self):
         self.assertEqual(self.v2, UndirectedPath([self.v1, self.v2, self.v3])[1])
+
+
+class TestUndirectedCycle(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.v1 = Vertex(0 ,1)
+        cls.v2 = Vertex(1, 2)
+        cls.v3 = Vertex(2, 3)
+        cls.v4 = Vertex(3, 4)
+
+    def test_cycle_equivalency(self):
+        c1 = UndirectedCycle([self.v1, self.v2, self.v3])
+        c2 = UndirectedCycle([self.v3, self.v2, self.v1])
+        c3 = UndirectedCycle([self.v2, self.v1, self.v3])
+        c4 = UndirectedCycle([self.v1, self.v4, self.v3])
+
+        self.assertEqual(c1, c2)
+        self.assertEqual(c1, c3)
+        self.assertEqual(c3, c2)
+        self.assertNotEqual(c1, c4)
+        self.assertNotEqual(c2, c4)
+        self.assertNotEqual(c3, c4)
+
+    def test_cycle_extension(self):
+        c1 = UndirectedCycle([self.v1, self.v2])
+        c2 = UndirectedCycle([self.v1, self.v2, self.v3])
+
+        c1.append(self.v3)
+
+        self.assertEqual(c1, c2)
+
+    def test_cycle_deep_copy(self):
+        c1 = UndirectedCycle([self.v1, self.v2, self.v3])
+
+        c2 = c1.deep_copy()
+
+        self.assertEqual(c1, c2)
+
+        c2.verts[0] = self.v4
+        self.assertNotEqual(c1, c2)
+
+    def test_cycle_length(self):
+        self.assertEqual(3, len(UndirectedCycle([self.v1, self.v2, self.v3])))
+
+    def test_cycle_indexing(self):
+        self.assertEqual(self.v2, UndirectedCycle([self.v1, self.v2, self.v3])[1])
 
 
 if __name__ == '__main__':
