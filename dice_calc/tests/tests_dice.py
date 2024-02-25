@@ -82,7 +82,7 @@ class D4TestCase(unittest.TestCase, DieTestCaseMixin):
 
 class D6TestCase(unittest.TestCase, DieTestCaseMixin):
     num_faces = 6
-    adjacent_faces = [(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 6), (3, 5), (3, 6), (4, 5), (5, 6)]
+    adjacent_faces = [(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 6), (3, 5), (3, 6), (4, 5), (4, 6), (5, 6)]
     num_faces_on_vertices = [3]
     opposing_faces = [(1, 6), (2, 5), (3, 4)]
     die_vertices = 8

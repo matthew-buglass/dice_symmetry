@@ -110,6 +110,33 @@ class UndirectedPath:
 
         return str(options[0])
 
+    def can_be_cycle(self) -> bool:
+        """
+        Evaluates whether a path can be a cycle
+
+        :return: A boolean of whether it can be a cycle
+        """
+        return self.verts[0] == self.verts[-1]
+
+    def get_cycle(self):
+        """
+        Creates an undirected cycle representation of the path
+        :throws: a Value Error if the path cannot be converted to a cycle
+        :return: and UndirectedCycle
+        """
+        if self.can_be_cycle():
+            return UndirectedCycle(self.verts[0: len(self.verts) - 1])
+        else:
+            raise ValueError("Path cannot be converted to a cycle")
+
+    def pop(self):
+        """
+        Pops the last vertex in the path
+
+        :return: None
+        """
+        self.verts.pop()
+
     def deep_copy(self):
         return UndirectedPath(self.verts.copy())
 
