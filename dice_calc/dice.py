@@ -1,8 +1,10 @@
+from itertools import permutations
+
 import numpy as np
 
 from utils.decorators import timed
 from utils.generators import face_weights_locked_one
-from utils.graphs import Edge, WeightedVertex, UndirectedPath, UndirectedCycle
+from utils.graphs import Edge, WeightedVertex, UndirectedPath, UndirectedCycle, Vertex
 
 
 class Die:
@@ -16,7 +18,7 @@ class Die:
         """
         An abstract undirected graph representation of a die. Vertices in the graph represent faces on a die, and the vertex
         weights are the face values of the die. A simple cycle of a given number of vertices represents the point, or
-        vertex, on the physical die. In this way, we can calculate facial and vertex similarities of dice.
+        vertex, on the face of the die. In this way, we can calculate facial and vertex similarities of dice.
 
         Inside the class we refer to the graphical representation, but outside the graph we refer to components
         as the die components.
@@ -32,70 +34,54 @@ class Die:
         self.verts = [WeightedVertex(index=i, name=i + 1, weight=0) for i in range(num_faces)]
         self.edges = [Edge(self.verts[e[0] - 1], self.verts[e[1] - 1]) for e in adjacent_faces]
         self.opposing_faces = opposing_faces
+        self.edge_dict = self.__build_edge_dict__()
 
         self.cycles = self.__find_simple_cycles__(num_faces_on_vertices)
 
-    def __get_edge_dict__(self) -> dict[WeightedVertex, list[Edge]]:
-        """
-        Builds a dictionary of vertices to outgoing edges for fast lookups of out-edges.
-        :return: a dictionary of WeightedVertices to a list of out-Edges.
-        """
+    def __build_edge_dict__(self) -> dict[Vertex, set[Any]]:
         edge_dict = {}
         for edge in self.edges:
             assert not edge.directed
             try:
-                edge_dict[edge.src].append(edge)
+                edge_dict[edge.src].add(edge.dst)
             except KeyError:
-                edge_dict[edge.src] = []
-                edge_dict[edge.src].append(edge)
+                edge_dict[edge.src] = set()
+                edge_dict[edge.src].add(edge.dst)
 
             try:
-                edge_dict[edge.dst].append(edge)
+                edge_dict[edge.dst].add(edge.src)
             except KeyError:
-                edge_dict[edge.dst] = []
-                edge_dict[edge.dst].append(edge)
+                edge_dict[edge.dst] = set()
+                edge_dict[edge.dst].add(edge.src)
 
         return edge_dict
 
     def __find_simple_cycles__(self, cycle_lens) -> list[UndirectedCycle]:
         """
-        Finds all unique simple cycles of a specific length in an edge_list.
-
-        NOTE: still a work-in progress
-
+        Finds all unique, undirected, simple cycles of a specific length in an edge_list.
         :param edges: The undirected edge list of the graph
         :param cycle_lens: The list of number of unique vertices in the cycles. The first vertex counts as the first and last.
         :return: A list of unique simple cycles in the graph. The closing edge goes from the last to the first vertex
         """
 
-        def cycle_helper(edge_dict: dict[WeightedVertex, list[Edge]],
-                         curr_path: UndirectedPath,
-                         cycle_len: int,
-                         cycles: list[UndirectedPath]):
-            if len(curr_path) == cycle_len:
-                # if there's an edge from the last to the first vertex add the path to the collected cycles
-                for edge in edge_dict[curr_path[-1]]:
-                    try:
-                        edge.follow(curr_path[0])
-                        cycles.append(UndirectedCycle(curr_path.verts))
-                    except AssertionError:
-                        pass
+        def cycle_helper(all_cycles: set, curr_path: UndirectedPath, cycle_len: int):
+            if len(curr_path) == cycle_len + 1:
+                if curr_path.can_be_cycle():
+                    all_cycles.add(curr_path.get_cycle())
+            elif len(curr_path) < cycle_len + 1:
+                for v in self.edge_dict[curr_path[-1]]:
+                    curr_path.append(v)
+                    cycle_helper(all_cycles, curr_path, cycle_len)
+                    curr_path.pop()
+            # Prevent infinite recursion
             else:
-                last_vertex = curr_path[-1]
-                verts_to_try = [e.follow(last_vertex) for e in edge_dict[last_vertex] if e.follow(last_vertex) not in curr_path]
-                for vert in verts_to_try:
-                    new_path = curr_path.deep_copy()
-                    new_path.append(vert)
-                    cycle_helper(edge_dict, new_path, cycle_len, cycles)
-
-        all_cycles = []
+                raise ValueError("Somehow the path is longer than it should be allowed")
+        all_cycles = set()
 
         for cycle_len in cycle_lens:
-            cycles = []
             for e in self.edges:
-                cycle_helper(self.__get_edge_dict__(), UndirectedPath([e.src, e.dst]), cycle_len, cycles)
-            all_cycles.extend(cycles)
-        return list(set(all_cycles))
+                cycle_helper(all_cycles, UndirectedPath(verts=[e.src, e.dst]), cycle_len)
+        return list(all_cycles)
 
     def __get_vertex_weights__(self) -> list[float]:
         """

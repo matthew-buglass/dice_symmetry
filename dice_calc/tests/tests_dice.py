@@ -79,10 +79,9 @@ class D4TestCase(unittest.TestCase, DieTestCaseMixin):
             self.assertIn(cycle, actual_cycles)
 
 
-
 class D6TestCase(unittest.TestCase, DieTestCaseMixin):
     num_faces = 6
-    adjacent_faces = [(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 6), (3, 5), (3, 6), (4, 5), (5, 6)]
+    adjacent_faces = [(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 6), (3, 5), (3, 6), (4, 5), (4, 6), (5, 6)]
     num_faces_on_vertices = [3]
     opposing_faces = [(1, 6), (2, 5), (3, 4)]
     die_vertices = 8
@@ -117,6 +116,43 @@ class D6TestCase(unittest.TestCase, DieTestCaseMixin):
         for cycle in expected_cycles:
             self.assertIn(cycle, actual_cycles)
 
+
+class D10TestCase(unittest.TestCase, DieTestCaseMixin):
+    num_faces = 0
+    adjacent_faces = []
+    num_faces_on_vertices = [3, 5]
+    opposing_faces = [(1, 8), (9, 10), (4, 5), (6, 3), (7, 2)]
+    die_vertices = 12
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instantiate_die()
+
+    def test_instantiation(self):
+        self.assertEqual(self.num_faces, len(self.die.verts))
+        self.assertEqual(self.die_vertices, len(self.die.cycles))
+
+    def test_cycle_finding(self):
+        # Setup
+        verts = self.die.verts
+        expected_cycles = [
+            UndirectedCycle([verts[0], verts[1], verts[2]]),
+            UndirectedCycle([verts[0], verts[1], verts[3]]),
+            UndirectedCycle([verts[0], verts[4], verts[3]]),
+            UndirectedCycle([verts[0], verts[4], verts[2]]),
+            UndirectedCycle([verts[5], verts[1], verts[2]]),
+            UndirectedCycle([verts[5], verts[1], verts[3]]),
+            UndirectedCycle([verts[5], verts[4], verts[3]]),
+            UndirectedCycle([verts[5], verts[4], verts[2]])
+        ]
+
+        # Execute
+        actual_cycles = self.die.__find_simple_cycles__(cycle_lens=self.num_faces_on_vertices)
+
+        # Assert
+        self.assertEqual(len(expected_cycles), len(actual_cycles))
+        for cycle in expected_cycles:
+            self.assertIn(cycle, actual_cycles)
 
 if __name__ == '__main__':
     unittest.main()
