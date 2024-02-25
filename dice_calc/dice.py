@@ -1,10 +1,11 @@
 from itertools import permutations
+from typing import Dict, Set, Any
 
 import numpy as np
 
 from utils.decorators import timed
 from utils.generators import face_weights_locked_one
-from utils.graphs import Edge, WeightedVertex, UndirectedPath, UndirectedCycle
+from utils.graphs import Edge, WeightedVertex, UndirectedPath, UndirectedCycle, Vertex
 
 
 class Die:
@@ -34,28 +35,27 @@ class Die:
         self.verts = [WeightedVertex(index=i, name=i + 1, weight=0) for i in range(num_faces)]
         self.edges = [Edge(self.verts[e[0] - 1], self.verts[e[1] - 1]) for e in adjacent_faces]
         self.opposing_faces = opposing_faces
-        self.edge_dict = {}
-        self.__build_edge_dict__()
+        self.edge_dict = self.__build_edge_dict__()
 
         self.cycles = self.__find_simple_cycles__(num_faces_on_vertices)
 
-    def __build_edge_dict__(self) -> dict[WeightedVertex, list[WeightedVertex]]:
+    def __build_edge_dict__(self) -> dict[Vertex, set[Any]]:
         edge_dict = {}
         for edge in self.edges:
             assert not edge.directed
             try:
-                edge_dict[edge.src].append(edge.dst)
+                edge_dict[edge.src].add(edge.dst)
             except KeyError:
-                edge_dict[edge.src] = []
-                edge_dict[edge.src].append(edge.dst)
+                edge_dict[edge.src] = set()
+                edge_dict[edge.src].add(edge.dst)
 
             try:
-                edge_dict[edge.dst].append(edge.src)
+                edge_dict[edge.dst].add(edge.src)
             except KeyError:
-                edge_dict[edge.dst] = []
-                edge_dict[edge.dst].append(edge.src)
+                edge_dict[edge.dst] = set()
+                edge_dict[edge.dst].add(edge.src)
 
-        self.edge_dict = edge_dict
+        return edge_dict
 
     def __find_simple_cycles__(self, cycle_lens) -> list[UndirectedCycle]:
         """
@@ -77,13 +77,12 @@ class Die:
             # Prevent infinite recursion
             else:
                 raise ValueError("Somehow the path is longer than it should be allowed")
-        all_cycles = set({})
+        all_cycles = set()
 
         for cycle_len in cycle_lens:
-            cycles = []
             for e in self.edges:
                 cycle_helper(all_cycles, UndirectedPath(verts=[e.src, e.dst]), cycle_len)
-        return list(set(all_cycles))
+        return list(all_cycles)
 
     def __get_vertex_weights__(self) -> list[float]:
         """
