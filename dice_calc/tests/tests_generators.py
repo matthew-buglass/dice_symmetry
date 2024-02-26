@@ -10,6 +10,9 @@ class TestFaceWeightGenerator(unittest.TestCase):
     d6_faces = 6
     d6_opposing_faces = [(1, 6), (2, 5), (3, 4)]
 
+    d8_faces = 8
+    d8_opposing_faces = [(7, 8), (3, 4), (2, 1), (6, 5)]
+
     d12_faces = 12
     d12_opposing_faces = [(1, 12), (2, 11), (3, 10), (4, 9), (5, 8), (6, 7)]
 
@@ -20,6 +23,7 @@ class TestFaceWeightGenerator(unittest.TestCase):
     def setUpClass(cls):
         cls.d4_perms = list(face_weights_locked_one(num_faces=cls.d4_faces, opp_faces=cls.d4_opposing_faces))
         cls.d6_perms = list(face_weights_locked_one(num_faces=cls.d6_faces, opp_faces=cls.d6_opposing_faces))
+        cls.d8_perms = list(face_weights_locked_one(num_faces=cls.d8_faces, opp_faces=cls.d8_opposing_faces))
         cls.d12_perms = list(face_weights_locked_one(num_faces=cls.d12_faces, opp_faces=cls.d12_opposing_faces))
         cls.d20_perms = list(face_weights_locked_one(num_faces=cls.d20_faces, opp_faces=cls.d20_opposing_faces))
 
@@ -37,6 +41,15 @@ class TestFaceWeightGenerator(unittest.TestCase):
 
         received_perms = 0
         for _ in self.d6_perms:
+            received_perms += 1
+
+        self.assertEqual(expected_permutations, received_perms)
+
+    def test_number_of_weights_d8(self):
+        expected_permutations = 6 # 3!
+
+        received_perms = 0
+        for _ in self.d8_perms:
             received_perms += 1
 
         self.assertEqual(expected_permutations, received_perms)
@@ -89,6 +102,13 @@ class TestFaceWeightGenerator(unittest.TestCase):
 
         for weights in self.d6_perms:
             for i, j in self.d6_opposing_faces:
+                self.assertEqual(expected_sum, weights[i-1] + weights[j-1])
+
+    def test_opposite_sides_add_to_9_d8(self):
+        expected_sum = 9
+
+        for weights in self.d8_perms:
+            for i, j in self.d8_opposing_faces:
                 self.assertEqual(expected_sum, weights[i-1] + weights[j-1])
 
     def test_opposite_sides_add_to_13_d12(self):
