@@ -1,20 +1,21 @@
 from itertools import permutations
+from typing import Any
 
 import numpy as np
 
 from utils.decorators import timed
 from utils.generators import face_weights_locked_one
-from utils.graphs import Edge, WeightedVertex, UndirectedPath, UndirectedCycle, Vertex
+from utils.graphs import Edge, WeightedVertex, UndirectedPath, UndirectedCycle
 
 
 class Die:
-    cycles: list[list[WeightedVertex]]
+    cycles: list[UndirectedCycle]
     edges: list[Edge]
     verts: list[WeightedVertex]
     sides: int
 
     def __init__(self, num_faces: int, adjacent_faces: [tuple[int, int]],
-                 num_faces_on_vertices: list[int], opposing_faces: list[tuple[int, int]]):
+                 num_faces_on_vertices: int, opposing_faces: list[tuple[int, int]]):
         """
         An abstract undirected graph representation of a die. Vertices in the graph represent faces on a die, and the vertex
         weights are the face values of the die. A simple cycle of a given number of vertices represents the point, or
@@ -38,7 +39,7 @@ class Die:
 
         self.cycles = self.__find_simple_cycles__(num_faces_on_vertices)
 
-    def __build_edge_dict__(self) -> dict[Vertex, set[Any]]:
+    def __build_edge_dict__(self) -> dict[WeightedVertex, set[WeightedVertex]]:
         edge_dict = {}
         for edge in self.edges:
             assert not edge.directed
@@ -56,11 +57,11 @@ class Die:
 
         return edge_dict
 
-    def __find_simple_cycles__(self, cycle_lens) -> list[UndirectedCycle]:
+    def __find_simple_cycles__(self, cycle_len: int) -> list[UndirectedCycle]:
         """
         Finds all unique, undirected, simple cycles of a specific length in an edge_list.
         :param edges: The undirected edge list of the graph
-        :param cycle_lens: The list of number of unique vertices in the cycles. The first vertex counts as the first and last.
+        :param cycle_lens: The number of unique vertices in the cycles. The first vertex counts as the first and last.
         :return: A list of unique simple cycles in the graph. The closing edge goes from the last to the first vertex
         """
 
@@ -76,11 +77,11 @@ class Die:
             # Prevent infinite recursion
             else:
                 raise ValueError("Somehow the path is longer than it should be allowed")
-        all_cycles = set()
 
-        for cycle_len in cycle_lens:
-            for e in self.edges:
-                cycle_helper(all_cycles, UndirectedPath(verts=[e.src, e.dst]), cycle_len)
+        all_cycles = set()
+        for e in self.edges:
+            cycle_helper(all_cycles, UndirectedPath(verts=[e.src, e.dst]), cycle_len)
+
         return list(all_cycles)
 
     def __get_vertex_weights__(self) -> list[float]:
@@ -132,31 +133,49 @@ class Die:
     def vertices_to_string(self):
         return "\n\t\t".join([str(c) for c in self.cycles])
 
+    def add_cycles(self, cycles: list[UndirectedCycle]):
+        self.cycles.extend(cycles)
+
+    def num_faces(self):
+        return len(self.verts)
+
 
 if __name__ == '__main__':
     d4 = Die(
         num_faces=4,
         adjacent_faces=[(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)],
-        num_faces_on_vertices=[3],
+        num_faces_on_vertices=3,
         opposing_faces=[(1, 3), (2, 4)]
     )
-
-    sd, t = d4.calc_optimum_face_weights_locked_opposing_faces()
-    print("#### D4 calculations ####")
-    print("\tOpt vert weight sd of a d4: {:.4f}".format(sd))
-    print(f"\tOpt face value placement of a d4: {d4.faces_to_string()}")
-    print(f"\tFaces around the vertices of a d4: \n\t\t{d4.vertices_to_string()}")
-    print("\tCalculated in {:.4f} ms\n".format(t))
 
     d6 = Die(
         num_faces=6,
         adjacent_faces=[(1, 2), (1, 3), (1, 4), (1, 5), (2, 3), (2, 4), (2, 6), (3, 5), (3, 6), (4, 5), (5, 6)],
-        num_faces_on_vertices=[3],
+        num_faces_on_vertices=3,
         opposing_faces=[(1, 6), (2, 5), (3, 4)]
     )
-    sd, t = d6.calc_optimum_face_weights_locked_opposing_faces()
-    print("#### D6 calculations ####")
-    print("\tOpt vert weight sd of a d4: {:.4f}".format(sd))
-    print(f"\tOpt face value placement of a d4: {d6.faces_to_string()}")
-    print(f"\tFaces around the vertices of a d6: \n\t\t{d6.vertices_to_string()}")
-    print("\tCalculated in {:.4f} ms\n".format(t))
+
+    d10 = Die(
+        num_faces=10,
+        adjacent_faces=[
+            (2, 6), (6, 4), (4, 10), (10, 8), (8, 2),
+            (9, 5), (5, 3), (3, 7), (7, 1), (1, 9),
+            (1, 4), (4, 7), (7, 10), (10, 3), (3, 8), (8, 5), (5, 2), (2, 9), (9, 6), (6, 1)
+        ],
+        num_faces_on_vertices=3,
+        opposing_faces=[(1, 8), (9, 10), (4, 5), (6, 3), (7, 2)],
+    )
+    # I had issues because a d10 is a wierd shape
+    d10.add_cycles([
+        UndirectedCycle([d10.verts[0], d10.verts[8], d10.verts[4], d10.verts[2], d10.verts[6]]),
+        UndirectedCycle([d10.verts[9], d10.verts[7], d10.verts[1], d10.verts[5], d10.verts[3]]),
+    ])
+
+    dice = [d4, d6, d10]
+    for die in dice:
+        sd, t = die.calc_optimum_face_weights_locked_opposing_faces()
+        print(f"#### D{die.num_faces()} calculations ####")
+        print("\tOpt vert weight sd of a d4: {:.4f}".format(sd))
+        print(f"\tOpt face value placement of a d4: {die.faces_to_string()}")
+        print(f"\tFaces around the vertices of a d6: \n\t\t{die.vertices_to_string()}")
+        print("\tCalculated in {:.4f} ms\n".format(t))
