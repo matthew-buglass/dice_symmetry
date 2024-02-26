@@ -17,18 +17,18 @@ def face_weights_locked_one(num_faces: int, opp_faces: list[tuple[int, int]]):
     perm[-1] = num_faces
 
     # remove the locked first face from the number of opposite faces
-    if (0, num_faces-1) in opp_faces:
-        opp_faces.remove((0, num_faces-1))
-    if (num_faces - 1, 0) in opp_faces:
-        opp_faces.remove((num_faces - 1, 0))
+    if (1, num_faces) in opp_faces:
+        opp_faces.remove((1, num_faces))
+    if (num_faces, 1) in opp_faces:
+        opp_faces.remove((num_faces, 1))
 
     # Create the permutation
     while curr_perm < num_perms:
         one_side_perm = next(face_vals_perms)
 
         for i, j in opp_faces:
-            perm[i] = one_side_perm[i-1][0]
-            perm[j] = one_side_perm[i-1][1]
+            perm[i-1] = one_side_perm[i-2][0]
+            perm[j-1] = one_side_perm[i-2][1]
 
         yield perm
 
