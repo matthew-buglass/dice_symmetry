@@ -216,9 +216,12 @@ if __name__ == '__main__':
 
     dice = [d4, d6, d8, d10, d12, d20]
     for die in dice:
+        total_sd = np.std(range(1, len(die.verts) + 1))
         print(f"\n\n#### D{die.num_faces()} calculations ####")
         sd, t = die.calc_optimum_face_weights_locked_opposing_faces()
         print(f"\tOpt vert weight sd of a d{die.num_faces()}: {sd:.4f}")
+        print(f"\t\tTotal sd of a d{die.num_faces()}: {total_sd:.4f}")
+        print(f"\t\tSd ratio : {sd/total_sd:.4f}")
         print(f"\tOpt face value placement of a d{die.num_faces()}: {die.faces_to_string()}")
         print(f"\tFaces around the vertices of a d{die.num_faces()}: \n\t\t{die.vertices_to_string()}")
         print(f"\tCalculated in {datetime.timedelta(milliseconds=t)}\n")
