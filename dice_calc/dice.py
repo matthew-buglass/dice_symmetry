@@ -1,6 +1,4 @@
-from itertools import permutations
-from typing import Any
-
+import datetime
 import numpy as np
 
 from utils.decorators import timed
@@ -218,9 +216,9 @@ if __name__ == '__main__':
 
     dice = [d4, d6, d8, d10, d12, d20]
     for die in dice:
+        print(f"\n\n#### D{die.num_faces()} calculations ####")
         sd, t = die.calc_optimum_face_weights_locked_opposing_faces()
-        print(f"#### D{die.num_faces()} calculations ####")
-        print("\tOpt vert weight sd of a d4: {:.4f}".format(sd))
-        print(f"\tOpt face value placement of a d4: {die.faces_to_string()}")
-        print(f"\tFaces around the vertices of a d6: \n\t\t{die.vertices_to_string()}")
-        print("\tCalculated in {:.4f} ms\n".format(t))
+        print(f"\tOpt vert weight sd of a d{die.num_faces()}: {sd:.4f}")
+        print(f"\tOpt face value placement of a d{die.num_faces()}: {die.faces_to_string()}")
+        print(f"\tFaces around the vertices of a d{die.num_faces()}: \n\t\t{die.vertices_to_string()}")
+        print(f"\tCalculated in {datetime.timedelta(milliseconds=t)}\n")
