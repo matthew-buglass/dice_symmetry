@@ -2,7 +2,7 @@ import datetime
 import numpy as np
 
 from utils.decorators import timed
-from utils.generators import paired_face_weights_locked_one
+from utils.generators import paired_face_weights_locked_one, face_weights_locked_one
 from utils.graphs import Edge, WeightedVertex, UndirectedPath, UndirectedCycle
 
 
@@ -125,6 +125,26 @@ class Die:
         self.__assign_weights__(optimal_weights)
         return optimal_weights_sd
 
+    @timed
+    def calc_optimum_face_weights_free_opposing_faces(self):
+        """
+        Finds the weight (face number) positioning that minimizes the standard deviation of die vertex weights.
+        :return: a string representation of face ids and the weights attributed.
+        """
+        optimal_weights = [0] * len(self.verts)
+        optimal_weights_sd = 99999999999999
+
+        for weights in face_weights_locked_one(num_faces=len(self.verts)):
+            self.__assign_weights__(weights=weights)
+            sd = np.std(self.__get_vertex_weights__())
+            if sd < optimal_weights_sd:
+                optimal_weights = weights
+                optimal_weights_sd = sd
+
+        # apply and return the best weights
+        self.__assign_weights__(optimal_weights)
+        return optimal_weights_sd
+
     def faces_to_string(self):
         return str([str(v) for v in self.verts])
 
@@ -218,6 +238,7 @@ if __name__ == '__main__':
     for die in dice:
         total_sd = np.std(range(1, len(die.verts) + 1))
         print(f"\n\n#### D{die.num_faces()} calculations ####")
+        print("Locked Faces")
         sd, t = die.calc_optimum_face_weights_locked_opposing_faces()
         print(f"\tOpt vert weight sd of a d{die.num_faces()}: {sd:.4f}")
         print(f"\t\tTotal sd of a d{die.num_faces()}: {total_sd:.4f}")
@@ -225,3 +246,14 @@ if __name__ == '__main__':
         print(f"\tOpt face value placement of a d{die.num_faces()}: {die.faces_to_string()}")
         print(f"\tFaces around the vertices of a d{die.num_faces()}: \n\t\t{die.vertices_to_string()}")
         print(f"\tCalculated in {datetime.timedelta(milliseconds=t)}\n")
+        print("Free Faces")
+
+        # currently, brute force is going to take 195.75 Millennia....so we're just gonna not
+        if die.num_faces() != 20:
+            sd, t = die.calc_optimum_face_weights_free_opposing_faces()
+            print(f"\tOpt vert weight sd of a d{die.num_faces()}: {sd:.4f}")
+            print(f"\t\tTotal sd of a d{die.num_faces()}: {total_sd:.4f}")
+            print(f"\t\tSd ratio : {sd / total_sd:.4f}")
+            print(f"\tOpt face value placement of a d{die.num_faces()}: {die.faces_to_string()}")
+            print(f"\tFaces around the vertices of a d{die.num_faces()}: \n\t\t{die.vertices_to_string()}")
+            print(f"\tCalculated in {datetime.timedelta(milliseconds=t)}\n")

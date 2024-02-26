@@ -38,3 +38,18 @@ def paired_face_weights_locked_one(num_faces: int, opp_faces: list[tuple[int, in
         yield perm
 
         curr_perm += 1
+
+
+def face_weights_locked_one(num_faces: int):
+    # create permutations of faces (starting at 2 because we already set 1)
+    face_vals_perms = permutations(range(2, num_faces + 1))
+
+    # Calculate the total number of permutations
+    num_perms = factorial(num_faces - 1)
+    curr_perm = 0
+
+    # Create the permutation
+    while curr_perm < num_perms:
+        perm = next(face_vals_perms)
+        yield (1,) + perm
+        curr_perm += 1
