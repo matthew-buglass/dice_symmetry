@@ -28,8 +28,8 @@ def face_weights_locked_one(num_faces: int, opp_faces: list[tuple[int, int]]):
 
         try:
             for i, j in opp_faces:
-                perm[i-1] = one_side_perm[i // 2][0]
-                perm[j-1] = one_side_perm[i // 2][1]
+                perm[i-1] = one_side_perm[i-2][0]
+                perm[j-1] = one_side_perm[i-2][1]
         except IndexError as e:
             print(e)
             pass

@@ -11,7 +11,7 @@ class TestFaceWeightGenerator(unittest.TestCase):
     d6_opposing_faces = [(1, 6), (2, 5), (3, 4)]
 
     d8_faces = 8
-    d8_opposing_faces = [(7, 8), (3, 4), (2, 1), (6, 5)]
+    d8_opposing_faces = [(1, 8), (2, 7), (3, 6), (4, 5)]
 
     d12_faces = 12
     d12_opposing_faces = [(1, 12), (2, 11), (3, 10), (4, 9), (5, 8), (6, 7)]
