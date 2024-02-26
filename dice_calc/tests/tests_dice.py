@@ -51,10 +51,10 @@ class D4TestCase(unittest.TestCase, DieTestCaseMixin):
     def test_edge_dict_building(self):
         verts = self.die.verts
         expected_dict = {
-            verts[0]: [Edge(verts[0], verts[1]), Edge(verts[0], verts[2]), Edge(verts[0], verts[3])],
-            verts[1]: [Edge(verts[0], verts[1]), Edge(verts[1], verts[2]), Edge(verts[1], verts[3])],
-            verts[2]: [Edge(verts[0], verts[2]), Edge(verts[1], verts[2]), Edge(verts[2], verts[3])],
-            verts[3]: [Edge(verts[0], verts[3]), Edge(verts[1], verts[3]), Edge(verts[2], verts[3])]
+            verts[0]: {verts[1], verts[2], verts[3]},
+            verts[1]: {verts[0], verts[2], verts[3]},
+            verts[2]: {verts[1], verts[0], verts[3]},
+            verts[3]: {verts[0], verts[1], verts[2]}
         }
 
         self.assertDictEqual(expected_dict, self.die.__get_edge_dict__())
@@ -70,7 +70,7 @@ class D4TestCase(unittest.TestCase, DieTestCaseMixin):
         ]
 
         # Execute
-        actual_cycles = self.die.__find_simple_cycles__(cycle_lens=self.num_faces_on_vertices)
+        actual_cycles = self.die.__find_simple_cycles__(cycle_len=self.num_faces_on_vertices)
 
         # Assert
         self.assertEqual(len(expected_cycles), len(actual_cycles))
@@ -108,7 +108,47 @@ class D6TestCase(unittest.TestCase, DieTestCaseMixin):
         ]
 
         # Execute
-        actual_cycles = self.die.__find_simple_cycles__(cycle_lens=self.num_faces_on_vertices)
+        actual_cycles = self.die.__find_simple_cycles__(cycle_len=self.num_faces_on_vertices)
+
+        # Assert
+        self.assertEqual(len(expected_cycles), len(actual_cycles))
+        for cycle in expected_cycles:
+            self.assertIn(cycle, actual_cycles)
+
+
+class D8TestCase(unittest.TestCase, DieTestCaseMixin):
+    num_faces = 8
+    adjacent_faces = [
+        (1, 8), (8, 5), (5, 4), (4, 1),
+        (7, 6), (6, 3), (3, 2), (2, 7),
+        (7, 4), (1, 6), (3, 8), (2, 5),
+    ]
+    num_faces_on_vertices = 4
+    opposing_faces = [(7, 8), (3, 4), (2, 1), (6, 5)]
+    die_vertices = 6
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instantiate_die()
+
+    def test_instantiation(self):
+        self.assertEqual(self.num_faces, len(self.die.verts))
+        self.assertEqual(self.die_vertices, len(self.die.cycles))
+
+    def test_cycle_finding(self):
+        # Setup
+        verts = self.die.verts
+        expected_cycles = [
+            UndirectedCycle([verts[0], verts[5], verts[2], verts[7]]),
+            UndirectedCycle([verts[7], verts[2], verts[1], verts[4]]),
+            UndirectedCycle([verts[4], verts[1], verts[6], verts[3]]),
+            UndirectedCycle([verts[3], verts[6], verts[5], verts[0]]),
+            UndirectedCycle([verts[0], verts[3], verts[4], verts[7]]),
+            UndirectedCycle([verts[2], verts[1], verts[6], verts[5]]),
+        ]
+
+        # Execute
+        actual_cycles = self.die.__find_simple_cycles__(cycle_len=self.num_faces_on_vertices)
 
         # Assert
         self.assertEqual(len(expected_cycles), len(actual_cycles))

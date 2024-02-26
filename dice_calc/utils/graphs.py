@@ -118,6 +118,15 @@ class UndirectedPath:
         """
         return self.verts[0] == self.verts[-1]
 
+    def can_be_simple_cycle(self) -> bool:
+        """
+        Evaluates whether a path can be a simple cycle
+
+        :return: A boolean of whether it can be a simple cycle
+        """
+        # If we can be a cycle and the only repeated vertex is the first and last
+        return self.can_be_cycle() and len(set(self.verts)) == len(self.verts) - 1
+
     def get_cycle(self):
         """
         Creates an undirected cycle representation of the path

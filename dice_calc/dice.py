@@ -35,11 +35,11 @@ class Die:
         self.verts = [WeightedVertex(index=i, name=i + 1, weight=0) for i in range(num_faces)]
         self.edges = [Edge(self.verts[e[0] - 1], self.verts[e[1] - 1]) for e in adjacent_faces]
         self.opposing_faces = opposing_faces
-        self.edge_dict = self.__build_edge_dict__()
+        self.edge_dict = self.__get_edge_dict__()
 
         self.cycles = self.__find_simple_cycles__(num_faces_on_vertices)
 
-    def __build_edge_dict__(self) -> dict[WeightedVertex, set[WeightedVertex]]:
+    def __get_edge_dict__(self) -> dict[WeightedVertex, set[WeightedVertex]]:
         edge_dict = {}
         for edge in self.edges:
             assert not edge.directed
@@ -67,7 +67,7 @@ class Die:
 
         def cycle_helper(all_cycles: set, curr_path: UndirectedPath, cycle_len: int):
             if len(curr_path) == cycle_len + 1:
-                if curr_path.can_be_cycle():
+                if curr_path.can_be_simple_cycle():
                     all_cycles.add(curr_path.get_cycle())
             elif len(curr_path) < cycle_len + 1:
                 for v in self.edge_dict[curr_path[-1]]:
