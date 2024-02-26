@@ -85,10 +85,28 @@ class TestFaceWeightGenerator(unittest.TestCase):
 
         self.assertEqual(expected_permutations, received_perms)
 
+    def test_each_number_appears_once_d4(self):
+        expected_numbers = {1, 2, 3, 4}
+
+        for weights in self.d4_perms:
+            self.assertSetEqual(expected_numbers, set(weights))
+
     def test_each_number_appears_once_d6(self):
         expected_numbers = {1, 2, 3, 4, 5, 6}
 
         for weights in self.d6_perms:
+            self.assertSetEqual(expected_numbers, set(weights))
+
+    def test_each_number_appears_once_d8(self):
+        expected_numbers = {1, 2, 3, 4, 5, 6, 7, 8}
+
+        for weights in self.d8_perms:
+            self.assertSetEqual(expected_numbers, set(weights))
+
+    def test_each_number_appears_once_d10(self):
+        expected_numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+
+        for weights in self.d10_perms:
             self.assertSetEqual(expected_numbers, set(weights))
 
     def test_each_number_appears_once_d12(self):
