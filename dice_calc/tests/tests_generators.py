@@ -1,6 +1,6 @@
 import unittest
 
-from utils.generators import face_weights_locked_one
+from utils.generators import paired_face_weights_locked_one
 
 
 class TestFaceWeightGenerator(unittest.TestCase):
@@ -24,12 +24,12 @@ class TestFaceWeightGenerator(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.d4_perms = list(face_weights_locked_one(num_faces=cls.d4_faces, opp_faces=cls.d4_opposing_faces))
-        cls.d6_perms = list(face_weights_locked_one(num_faces=cls.d6_faces, opp_faces=cls.d6_opposing_faces))
-        cls.d8_perms = list(face_weights_locked_one(num_faces=cls.d8_faces, opp_faces=cls.d8_opposing_faces))
-        cls.d10_perms = list(face_weights_locked_one(num_faces=cls.d10_faces, opp_faces=cls.d10_opposing_faces))
-        cls.d12_perms = list(face_weights_locked_one(num_faces=cls.d12_faces, opp_faces=cls.d12_opposing_faces))
-        cls.d20_perms = list(face_weights_locked_one(num_faces=cls.d20_faces, opp_faces=cls.d20_opposing_faces))
+        cls.d4_perms = list(paired_face_weights_locked_one(num_faces=cls.d4_faces, opp_faces=cls.d4_opposing_faces))
+        cls.d6_perms = list(paired_face_weights_locked_one(num_faces=cls.d6_faces, opp_faces=cls.d6_opposing_faces))
+        cls.d8_perms = list(paired_face_weights_locked_one(num_faces=cls.d8_faces, opp_faces=cls.d8_opposing_faces))
+        cls.d10_perms = list(paired_face_weights_locked_one(num_faces=cls.d10_faces, opp_faces=cls.d10_opposing_faces))
+        cls.d12_perms = list(paired_face_weights_locked_one(num_faces=cls.d12_faces, opp_faces=cls.d12_opposing_faces))
+        cls.d20_perms = list(paired_face_weights_locked_one(num_faces=cls.d20_faces, opp_faces=cls.d20_opposing_faces))
 
     def test_number_of_weights_d4(self):
         expected_permutations = 1 # 1!

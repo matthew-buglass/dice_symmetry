@@ -2,7 +2,7 @@ import datetime
 import numpy as np
 
 from utils.decorators import timed
-from utils.generators import face_weights_locked_one
+from utils.generators import paired_face_weights_locked_one
 from utils.graphs import Edge, WeightedVertex, UndirectedPath, UndirectedCycle
 
 
@@ -114,7 +114,7 @@ class Die:
         optimal_weights = [0] * len(self.verts)
         optimal_weights_sd = 99999999999999
 
-        for weights in face_weights_locked_one(num_faces=len(self.verts), opp_faces=self.opposing_faces):
+        for weights in paired_face_weights_locked_one(num_faces=len(self.verts), opp_faces=self.opposing_faces):
             self.__assign_weights__(weights=weights)
             sd = np.std(self.__get_vertex_weights__())
             if sd < optimal_weights_sd:

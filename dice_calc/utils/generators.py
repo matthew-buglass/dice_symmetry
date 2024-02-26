@@ -2,7 +2,7 @@ from itertools import permutations
 from math import factorial
 
 
-def face_weights_locked_one(num_faces: int, opp_faces: list[tuple[int, int]]):
+def paired_face_weights_locked_one(num_faces: int, opp_faces: list[tuple[int, int]]):
     # create permutations of opposite faces (starting at 2 because we already set 1
     face_value_pairs = {(i, (num_faces + 1)-i) for i in range(2, num_faces // 2 + 1)}
     face_vals_perms = permutations(face_value_pairs)
